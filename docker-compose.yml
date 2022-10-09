@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       context: .
     ports:
-      - 8080:8080
+      - 8181:8181
     volumes:
       - type: bind
         source: .
@@ -14,9 +14,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
     tty: true
-    container_name: interface
+    container_name: comet-interface
     command: bash
 networks:
   default:
-    name: daphne-network
+    name: comet-network
     external: true

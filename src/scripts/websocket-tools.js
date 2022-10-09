@@ -5,7 +5,6 @@ import store from '../store';
 class WebsocketTools {
     constructor() {
         this.websocket = null;
-        this.experimentWebsocket = null;
     }
 
     async wsConnect() {
@@ -15,20 +14,19 @@ class WebsocketTools {
             let pingIntervalId = null;
 
             websocket.onopen = () => {
-                console.log('Web Socket Connection Made');
+                console.log('--> WS CONNECTED');
 
-                // Start ping routine
+                // --> Ping routine
                 pingIntervalId = setInterval(() => {
-                    console.log("Ping sent!");
+                    console.log("--> PING OUT");
                     websocket.send(JSON.stringify({'msg_type': 'ping'}));
                 }, 30000);
 
-                // Resolve the promise
                 this.websocket = websocket;
                 resolve();
             };
             websocket.onclose = (event) => {
-                console.log("Websockets closed", event);
+                console.log("--> WS CLOSED", event);
                 clearInterval(pingIntervalId);
             };
             websocket.onmessage = (event) => {
