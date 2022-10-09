@@ -22,7 +22,12 @@ module.exports = merge(common, {
             target: 'http://127.0.0.1:8181/',
             changeOrigin: true,
             ws: true
-        }
+        },
+        '/api': {
+            target: 'http://brain:8000/',
+            changeOrigin: true,
+            ws: true
+        },
     },
     contentBase: './dist',
   },

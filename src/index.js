@@ -4,7 +4,7 @@
 
 // --> Vue
 import Vue from 'vue';
-import App from './components/App';
+import App from './components/CometApp';
 import store from './store';
 
 // --> VueRouter
@@ -93,7 +93,7 @@ store.subscribe(async (mutation, state) => {
 
 // --> 3. Build Vue instance
 let app = new Vue({
-    el: '#app',
+    el: '#CometApp',
     store,
     router,
     vuetify,
