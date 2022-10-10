@@ -80,13 +80,13 @@
 
                 // --> Main links <--
                 main_links: [
-                    { name: 'Mastery', icon: 'mdi-school', link: '/mastery'},
+                    // { name: 'Mastery', icon: 'mdi-school', link: '/mastery'},
                 ],
 
                 // --> Test links <--
                 test_links: [
                     // { name: 'Take Exam', icon: 'mdi-brain', link: '/adaptive-test'},
-                    { name: 'Take Exam', icon: 'mdi-brain', link: '/take-exam'},
+                    // { name: 'Take Exam', icon: 'mdi-brain', link: '/take-exam'},
                     // { name: 'Targeted', icon: 'mdi-bullseye-arrow', link: '/targeted-test'},
                 ],
 
@@ -126,7 +126,13 @@
                     this.$store.commit('set_login_overlay', value);
                 }
             }
-        }
+        },
+        methods: {
+
+        },
+        async mounted() {
+            await this.$store.dispatch('initialize');
+        },
     }
 </script>
 

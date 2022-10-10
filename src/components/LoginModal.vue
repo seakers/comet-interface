@@ -71,10 +71,7 @@
                 if (dataResponse.ok) {
                     let data = await dataResponse.json();
                     if (data['status'] === 'logged_in') {
-                        await this.$store.commit('set_user_id', data['pk']);
-                        await this.$store.commit('set_user_username', data['username']);
-                        await this.$store.commit('set_user_email', data['email']);
-                        await this.$store.commit('set_login_overlay', false);
+                        await this.$store.dispatch('initialize');
                     }
                     else {
                         this.error_noti = true;

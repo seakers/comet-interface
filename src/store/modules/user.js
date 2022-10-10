@@ -41,6 +41,9 @@ const actions = {
             await commit('set_user_id', auth_information.pk);
             await commit('set_user_username', auth_information.username);
             await commit('set_user_email', auth_information.email);
+
+            // --> Problem initialization
+
             await commit('set_login_overlay', false);
         }
         else{
