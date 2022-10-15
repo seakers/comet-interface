@@ -38,7 +38,7 @@ def commit():
                 content_type = 'image/svg'
 
             print('--> COPY:', remote_path, content_type)
-            client.upload_file(local_path, 'project-comet-bucket', remote_path, ExtraArgs={"ContentType": content_type})
+            client.upload_file(local_path, 'comet-bucket.selva-research.com', remote_path, ExtraArgs={"ContentType": content_type})
 
     return 0
 

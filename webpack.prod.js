@@ -8,11 +8,11 @@ module.exports = merge(common, {
   devtool: 'source-map',
   plugins: [
     new webpack.DefinePlugin({
-        'API_URL': JSON.stringify('http://brain.comet:8000/api/'),
-        'WS_URL': JSON.stringify('ws://brain.comet:8000/api/'),
-        'GRAPH_QL_URL': JSON.stringify('http://graphql.comet:8080/v1/graphql'),
-        'GRAPH_QL_WS_URL': JSON.stringify('ws://graphql.comet:8080/v1/graphql'),
-        'GRAPH_QL_WS_URL_SUB': JSON.stringify('ws://graphql.comet:8080/subscriptions'),
+        'API_URL': JSON.stringify('http://comet-services.selva-research.com:8000/api/'), // PROD
+        'WS_URL': JSON.stringify('ws://comet-services.selva-research.com:8000/api/'),    // PROD
+        'GRAPH_QL_URL': JSON.stringify('http://3.135.288.131:8080/v1/graphql'),
+        'GRAPH_QL_WS_URL': JSON.stringify('ws://3.135.288.131:8080/v1/graphql'),
+        'GRAPH_QL_WS_URL_SUB': JSON.stringify('ws://3.135.288.131:8080/subscriptions'),
     })
   ],
 });
