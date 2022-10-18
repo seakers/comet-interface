@@ -7,7 +7,7 @@ RUN apt-get -y update &&\
 
 
 RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt-get install -y nodejs \
+    apt-get install -y nodejs
 RUN npm install -g n
 RUN n 14.16
 
