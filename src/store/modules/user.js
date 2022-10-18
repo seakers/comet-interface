@@ -15,12 +15,12 @@ const state = {
 
     // --> Chatbox Drawer State <--
     chatbox: false,
-    chatbox_store: null,
     new_messages: 0,
 
 
     // --> Login Module State <--
     login_overlay: false,
+    register_overlay: false,
 };
 
 const getters = {
@@ -35,7 +35,6 @@ const actions = {
         let dataResponse     = await fetchGet(API_URL + 'auth/check-status');
         let auth_information = await dataResponse.json();
 
-
         if(auth_information.is_logged_in){
             // --> 2. If logged in, get: username, email, pk
             await commit('set_user_id', auth_information.pk);
@@ -45,10 +44,12 @@ const actions = {
             // --> Problem initialization
 
             await commit('set_login_overlay', false);
+            await commit('set_register_overlay', false);
         }
         else{
             // --> 3. If not logged in, open login overlay
             await commit('set_login_overlay', true);
+            await commit('set_register_overlay', false);
         }
     },
 };
@@ -87,7 +88,9 @@ const mutations = {
     async set_login_overlay(state, login_overlay){
         state.login_overlay = login_overlay;
     },
-
+    async set_register_overlay(state, register_overlay){
+        state.register_overlay = register_overlay;
+    },
 
 };
 

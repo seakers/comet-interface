@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import user from './modules/user';
+import controls from './modules/controls'
 
 Vue.use(Vuex);
 
@@ -17,7 +18,8 @@ export default new Vuex.Store({
     actions: {
     },
     modules: {
-        user
+        user,
+        controls
     },
     strict: debug
 });

@@ -46,6 +46,10 @@ module.exports = {
         test: /\.html$/,
         use: ['html-loader']
       },
+      {
+        test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)(\?[a-z0-9=.]+)?$/,
+        loader: 'url-loader?limit=100000'
+      },
       // Vuetify Loader
       {
         test: /\.s(c|a)ss$/,

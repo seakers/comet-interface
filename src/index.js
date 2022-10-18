@@ -27,7 +27,13 @@ Vue.use(VueApollo);
 
 // --> 1. Build routes
 // import TakeExam from './components/adaptive-testing/tests/TakeExam'
-const routes = []
+import AppsView from "./components/apps/AppsView";
+const routes = [
+
+    // Comet App View
+    { path: '/', component: AppsView },
+
+]
 const router = new VueRouter({
     routes // short for `routes: routes`
 })

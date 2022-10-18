@@ -1,7 +1,6 @@
 <template>
     <v-container>
 
-<!--    ALERTS-->
         <v-snackbar v-model="error_noti" timeout="5000" color="error" elevation="24">
             Invalid credentials
             <template v-slot:action="{ attrs }">
@@ -11,63 +10,64 @@
             </template>
         </v-snackbar>
 
-
-        <!--LOGIN CARD-->
+        <!--REGISTER CARD-->
         <v-card
             width="450"
             color="primary lighten-1"
             loader-height="6"
-            :loading="login_loading"
+            :loading="register_loading"
         >
-            <v-card-title>Login</v-card-title>
+            <v-card-title>Register</v-card-title>
             <v-card-text>
                 <v-form>
                     <v-text-field v-model="username" label="Username" clearable outlined :rules="field_rules"></v-text-field>
-                    <v-text-field v-model="password" label="Password" clearable outlined :rules="field_rules"></v-text-field>
-                    <v-btn color="success" :disabled="invalid_input" v-on:click="login()">Login</v-btn>
-                    <v-btn color="success" v-on:click="register_modal()">Go To Registration</v-btn>
+                    <v-text-field v-model="email" label="Email" clearable outlined :rules="field_rules"></v-text-field>
+                    <v-text-field v-model="password1" label="Password" clearable outlined :rules="field_rules"></v-text-field>
+                    <v-text-field v-model="password2" label="Repeat Password" clearable outlined :rules="field_rules"></v-text-field>
+                    <v-btn color="success" :disabled="invalid_input" v-on:click="register()">Register</v-btn>
+                    <v-btn color="success" v-on:click="login_modal()">Go To Login</v-btn>
                 </v-form>
             </v-card-text>
         </v-card>
+
 
 
     </v-container>
 </template>
 
 <script>
-
     import {fetchPost} from "../scripts/fetch-helpers";
-
     export default {
-        name: "login-modal",
+        name: "register-modal",
         data: function () {
             return {
                 username: '',
-                password: '',
+                email: '',
+                password1: '',
+                password2: '',
                 field_rules: [v => (v && v.length > 0) || 'field must not be empty'],
-                login_loading: false,
+                register_loading: false,
                 error_noti: false
             }
         },
         computed: {
             invalid_input(){
-                return this.username === '' || this.password === '';
+                return this.username === '' || this.password1 === '' || this.password2 === '' || this.email === '' || this.password1 !== this.password2;
             }
         },
         methods: {
-            async login(){
-                this.login_loading = 'success';
+            async register(){
+                this.register_loading = 'success';
                 this.error_noti = false;
-                console.log('--> LOGGING IN');
+                console.log('--> REGISTERING');
 
-
-                // --> 1. Send login request
                 let reqData = new FormData();
                 reqData.append("username", this.username);
-                reqData.append("password", this.password);
-                let dataResponse = await fetchPost(API_URL + 'auth/login', reqData);
+                reqData.append("email", this.email);
+                reqData.append("password1", this.password1);
+                reqData.append("password2", this.password2);
+                let dataResponse = await fetchPost(API_URL + 'auth/register', reqData);
 
-                // --> 2. Handle response
                 if (dataResponse.ok) {
                     let data = await dataResponse.json();
                     if (data['status'] === 'logged_in') {
@@ -78,13 +78,13 @@
                     }
                 }
                 else {
-                    console.error('Error logging in.');
+                    console.error('Registration error');
                 }
-                this.login_loading = false;
+                this.register_loading = false;
             },
-            async register_modal(){
-                await this.$store.commit('set_login_overlay', false);
-                await this.$store.commit('set_register_overlay', true);
+            async login_modal(){
+                await this.$store.commit('set_register_overlay', false);
+                await this.$store.commit('set_login_overlay', true);
             }
         },
         watch: {
@@ -95,6 +95,11 @@
         }
     }
 </script>
+
+
+
+
+
 
 <style scoped>
 
