@@ -4,8 +4,8 @@ import Vue from 'vue';
 const state = {
 
     nav_bar_apps: [
-        {name: 'Visualizer', icon: 'mdi-chart-scatter-plot', component: 'visualizer', cols: 12, active: true,},
-        {name: 'Design Builder', icon: 'mdi-wrench', component: 'design-builder', cols: 6, active: false},
+        {name: 'Visualizer', icon: 'mdi-chart-scatter-plot', component: 'visualizer', cols: 12, active: true},
+        {name: 'Design Builder', icon: 'mdi-wrench', component: 'design-builder', cols: 6, active: true},
         {name: 'Data Mining', icon: 'mdi-pickaxe', component: 'data-mining', cols: 6, active: false}
     ]
 

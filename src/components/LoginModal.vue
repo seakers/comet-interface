@@ -24,9 +24,16 @@
                 <v-form>
                     <v-text-field v-model="username" label="Username" clearable outlined :rules="field_rules"></v-text-field>
                     <v-text-field v-model="password" label="Password" clearable outlined :rules="field_rules"></v-text-field>
-                    <v-btn color="success" :disabled="invalid_input" v-on:click="login()">Login</v-btn>
-                    <v-btn color="success" v-on:click="register_modal()">Go To Registration</v-btn>
                 </v-form>
+                <v-row>
+                    <v-col>
+                        <v-btn color="success" :disabled="invalid_input" v-on:click="login()">Login</v-btn>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                    <v-col>
+                        <v-btn color="success" v-on:click="register_modal()">Go To Registration</v-btn>
+                    </v-col>
+                </v-row>
             </v-card-text>
         </v-card>
 

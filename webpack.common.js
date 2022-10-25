@@ -33,8 +33,19 @@ module.exports = {
       {
         test: /\.js$/,
         use: {
-          loader: 'babel-loader'
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
         }
+        // test: /\.m?js$/,
+        // exclude: /(node_modules|bower_components)/,
+        // use: {
+        //   loader: 'babel-loader',
+        //   options: {
+        //     presets: ['@babel/preset-env']
+        //   }
+        // }
       },
       // Vue loader
       {

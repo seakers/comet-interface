@@ -24,9 +24,16 @@
                     <v-text-field v-model="email" label="Email" clearable outlined :rules="field_rules"></v-text-field>
                     <v-text-field v-model="password1" label="Password" clearable outlined :rules="field_rules"></v-text-field>
                     <v-text-field v-model="password2" label="Repeat Password" clearable outlined :rules="field_rules"></v-text-field>
-                    <v-btn color="success" :disabled="invalid_input" v-on:click="register()">Register</v-btn>
-                    <v-btn color="success" v-on:click="login_modal()">Go To Login</v-btn>
                 </v-form>
+                <v-row>
+                    <v-col>
+                        <v-btn color="success" :disabled="invalid_input" v-on:click="register()">Register</v-btn>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                    <v-col>
+                        <v-btn color="success" v-on:click="login_modal()">Go To Login</v-btn>
+                    </v-col>
+                </v-row>
             </v-card-text>
         </v-card>
 

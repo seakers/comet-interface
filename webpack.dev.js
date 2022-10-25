@@ -9,9 +9,9 @@ module.exports = merge(common, {
     new webpack.DefinePlugin({
         'API_URL': JSON.stringify('http://localhost:8080/api/'),
         'WS_URL': JSON.stringify('ws://localhost:8080/api/'),
-        'GRAPH_QL_URL': JSON.stringify('http://3.135.288.131:8080/v1/graphql'),
-        'GRAPH_QL_WS_URL': JSON.stringify('ws://3.135.288.131:8080/v1/graphql'),
-        'GRAPH_QL_WS_URL_SUB': JSON.stringify('ws://3.135.288.131:8080/subscriptions'),
+        'GRAPH_QL_URL': JSON.stringify('http://3.135.228.131:8080/v1/graphql'),
+        'GRAPH_QL_WS_URL': JSON.stringify('ws://3.135.228.131:8080/v1/graphql'),
+        'GRAPH_QL_WS_URL_SUB': JSON.stringify('ws://3.135.228.131:8080/subscriptions'),
     })
   ],
   devtool: 'inline-source-map',

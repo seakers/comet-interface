@@ -1,6 +1,6 @@
 <template>
     <v-card elevation="4">
-        <v-card-title style="padding-bottom: 0;">Data Mining</v-card-title>
+        <v-card-title>Data Mining</v-card-title>
     </v-card>
 </template>
 
@@ -17,6 +17,7 @@ export default {
     computed: {
         ...mapState({
             user_id: state => state.user.user_id,
+            user_info_id: state => state.user.user_info_id,
             username: state => state.user.username,
             email: state => state.user.email,
             nav_bar_apps: state => state.controls.nav_bar_apps,
