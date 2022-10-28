@@ -15,7 +15,7 @@
         <!--LOGIN CARD-->
         <v-card
             width="450"
-            color="primary lighten-1"
+            color="secondary darken-1"
             loader-height="6"
             :loading="login_loading"
         >

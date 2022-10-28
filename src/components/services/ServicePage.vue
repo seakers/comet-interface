@@ -723,9 +723,8 @@
             console.log('--> MOUNTING SERVICE PAGE');
             if(wsTools.websocket === null){
                 await wsTools.wsConnect(this.$store);
+                this.send_ping();
             }
-
-            this.send_ping();
             this.reload_module();
         }
     }

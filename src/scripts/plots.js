@@ -1,18 +1,18 @@
 
 
 
-export function get_scatter_plot(objectives, designs_sub) {
+export function get_scatter_plot(objectives, designs_sub, point_customdata) {
 
     // --> Scatterplots can handle up to 3 objectives (for now)
 
     if(objectives.length === 1){
-        return scatter1d_plot(objectives, designs_sub);
+        return scatter1d_plot(objectives, designs_sub, point_customdata);
     }
     else if(objectives.length === 2){
-        return scatter2d_plot(objectives, designs_sub);
+        return scatter2d_plot(objectives, designs_sub, point_customdata);
     }
     else if(objectives.length === 3){
-        return scatter3d_plot(objectives, designs_sub);
+        return scatter3d_plot(objectives, designs_sub, point_customdata);
     }
     else{
         return { data: [], layout: {} }
@@ -20,7 +20,7 @@ export function get_scatter_plot(objectives, designs_sub) {
 }
 
 
-function scatter1d_plot(objectives, designs_sub){
+function scatter1d_plot(objectives, designs_sub, point_customdata){
     // --> 1. Create traces
     let trace = {
         x: [0.2, 0.4, 0.6, 0.8],
@@ -33,12 +33,19 @@ function scatter1d_plot(objectives, designs_sub){
     trace.x = get_axis_data(designs_sub, objectives[0].id);
     console.log('--> X DATA', trace.x);
 
+    trace.text = get_text_data(designs_sub);
+    console.log('--> TEXT DATA', trace.text);
+
+    integrate_customdata(trace, point_customdata);
+
     // --> 3. Create data from traces
     let data = [trace]
 
     // --> 4. Create layout
     let layout = {
         title: '1D Scatterplot',
+        autosize: true,
+        hovermode:'closest',
         xaxis: { title: objectives[0]['name'] },
         yaxis: { title: '' }
     }
@@ -49,7 +56,7 @@ function scatter1d_plot(objectives, designs_sub){
     }
 }
 
-function scatter2d_plot(objectives, designs_sub){
+function scatter2d_plot(objectives, designs_sub, point_customdata){
 
     // --> 1. Create traces
     let trace = {
@@ -58,18 +65,28 @@ function scatter2d_plot(objectives, designs_sub){
         text: ['110100', '100111', '001100', '100010'],
         type: 'scatter2d',
         mode: 'markers',
+        marker: {
+            color: 'rgb(17, 157, 255)',
+            size: 5,
+            // line: {
+            //     color: 'rgb(231, 99, 250)',
+            //     width: 2
+            // }
+        },
+        customdata: [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
     }
 
     // --> 2. Get axis / text data
     trace.x = get_axis_data(designs_sub, objectives[0].id);
-    console.log('--> X DATA', trace.x);
+    // console.log('--> X DATA', trace.x);
 
     trace.y = get_axis_data(designs_sub, objectives[1].id);
-    console.log('--> Y DATA', trace.y);
+    // console.log('--> Y DATA', trace.y);
 
     trace.text = get_text_data(designs_sub);
-    console.log('--> TEXT DATA', trace.text);
+    // console.log('--> TEXT DATA', trace.text);
 
+    trace = integrate_customdata(trace, point_customdata);
 
     // --> 2. Create data from traces
     let data = [trace]
@@ -78,6 +95,7 @@ function scatter2d_plot(objectives, designs_sub){
     let layout = {
         title: '2D Scatterplot',
         autosize: true,
+        hovermode:'closest',
         xaxis: { title: objectives[0]['name'] },
         yaxis: { title: objectives[1]['name'] },
         // plot_bgcolor:"lightgrey",
@@ -89,7 +107,7 @@ function scatter2d_plot(objectives, designs_sub){
     }
 }
 
-function scatter3d_plot(objectives, designs_sub){
+function scatter3d_plot(objectives, designs_sub, point_customdata){
 
     // --> 1. Create traces
     let trace = {
@@ -114,6 +132,8 @@ function scatter3d_plot(objectives, designs_sub){
     trace.text = get_text_data(designs_sub);
     console.log('--> TEXT DATA', trace.text);
 
+    integrate_customdata(trace, point_customdata);
+
     // --> 3. Create data from traces
     let data = [trace]
 
@@ -121,6 +141,7 @@ function scatter3d_plot(objectives, designs_sub){
     let layout = {
         title: '3D Scatterplot',
         autosize: true,
+        hovermode:'closest',
         scene: {
             xaxis: { title: objectives[0]['name'] },
             yaxis: { title: objectives[1]['name'] },
@@ -169,6 +190,29 @@ function get_text_data(designs_sub){
     }
     return text_data;
 }
+
+function integrate_customdata(trace, customdata){
+    let color = [];
+    let size = [];
+    for(let x = 0; x < customdata.length; x++){
+        if(customdata[x].highlighted === true){
+            color.push('red');
+            size.push(9);
+        }
+        else {
+            color.push('#122446');
+            size.push(8);
+        }
+    }
+
+    trace.customdata = customdata
+    trace.marker.color = color;
+    trace.marker.size = size;
+    return trace;
+}
+
+
+
 
 
 

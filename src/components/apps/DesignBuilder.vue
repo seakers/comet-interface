@@ -1,19 +1,6 @@
 <template>
     <v-card elevation="4">
-
-        <v-container style="padding: 0">
-            <v-row>
-                <v-col style="padding-top: 0">
-                    <v-card-title>Design Builder</v-card-title>
-                </v-col>
-                <v-spacer></v-spacer>
-                <v-col style="padding-top: 16px; padding-right: 16px;">
-                    <v-btn color="primary" :disabled="!can_evaluate" v-on:click="evaluate_design()">
-                        Evaluate Design
-                    </v-btn>
-                </v-col>
-            </v-row>
-        </v-container>
+        <v-card-title>Design Builder</v-card-title>
 
         <v-container>
             <v-row>
@@ -37,6 +24,12 @@
                 </v-col>
             </v-row>
         </v-container>
+
+        <v-card-actions>
+            <v-btn color="primary" :disabled="!can_evaluate" v-on:click="evaluate_design()">
+                Evaluate Design
+            </v-btn>
+        </v-card-actions>
     </v-card>
 </template>
 
@@ -46,6 +39,7 @@
     import {sqsClient} from "../../scripts/sqsClient";
     import {ListQueuesCommand, SendMessageCommand, PurgeQueueCommand} from "@aws-sdk/client-sqs";
     import * as _ from "lodash";
+    import {wsTools} from "../../scripts/websocket-tools";
 
     export default {
         name: "design-builder",
@@ -100,15 +94,6 @@
                     return true;
                 }
             },
-            // design: {
-            //     deep: true,
-            //     get() {
-            //         return _.cloneDeep(this.$store.state.problem.design);
-            //     },
-            //     set(value) {
-            //         this.$store.commit('set_design', value);
-            //     }
-            // },
         },
         methods: {
             async evaluate_design() {
@@ -197,9 +182,6 @@
                 this.local_design = _.cloneDeep(this.design);
             }
         },
-        async mounted() {
-
-        }
     }
 </script>
 

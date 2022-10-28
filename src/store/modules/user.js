@@ -33,7 +33,7 @@ const getters = {
 };
 
 const actions = {
-    async initialize({ state, commit }){
+    async initialize2({ state, commit }){
         console.log('--> SETTING USER INFO');
 
         // --> 1. Check to see if user is logged in
@@ -61,6 +61,51 @@ const actions = {
             await commit('set_register_overlay', false);
         }
     },
+
+    async initialize({ state, commit }){
+        console.log('--> INITIALIZING TOOL');
+        try {
+            await fetchGet(API_URL + 'auth/check-status').then(async (response) => {
+                if(response.ok){
+                    let data = await response.json();
+                    console.log("--> auth/check-status:", data);
+                    if(data.is_logged_in){
+                        await wsTools.wsReconnect();
+
+                        // --> 2. If logged in, get: username, email, pk
+                        await commit('set_user_id', data.pk);
+                        await commit('set_user_info_id', data.user_info_pk);
+                        await commit('set_user_username', data.username);
+                        await commit('set_user_email', data.email);
+                        await commit('set_problem_id', data.problem_id);
+                        await commit('setEvaluationQueue', data.evaluation_queue);
+
+
+                        await commit('set_login_overlay', false);
+                        await commit('set_register_overlay', false);
+                    }
+                    else{
+                        // --> 3. If not logged in, open login overlay
+                        await commit('set_login_overlay', true);
+                        await commit('set_register_overlay', false);
+                    }
+                }
+                else{
+                    console.error('--> CHECK STATUS ERROR', response);
+                    await commit('set_login_overlay', true);
+                    await commit('set_register_overlay', false);
+                }
+            });
+        }
+        catch (e) {
+            console.error('--> NETWORKING ERROR', e);
+            await commit('set_login_overlay', true);
+            await commit('set_register_overlay', false);
+        }
+    }
+
+
+
 };
 
 const mutations = {

@@ -4,7 +4,6 @@ import Vue from 'vue';
 const state = {
 
     problem_id: null,
-
     design: [],
 };
 
@@ -37,11 +36,3 @@ export default {
     actions,
     mutations
 }
-
-
-
-
-
-
-
-

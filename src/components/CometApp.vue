@@ -122,23 +122,7 @@
         },
         data: function () {
             return {
-                modules_db: null,
 
-                // --> Main links <--
-                main_links: [
-                    // { name: 'Mastery', icon: 'mdi-school', link: '/mastery'},
-                ],
-
-                // --> Test links <--
-                test_links: [
-                    // { name: 'Take Exam', icon: 'mdi-brain', link: '/adaptive-test'},
-                    // { name: 'Take Exam', icon: 'mdi-brain', link: '/take-exam'},
-                    // { name: 'Targeted', icon: 'mdi-bullseye-arrow', link: '/targeted-test'},
-                ],
-
-                // --> Module links <--
-                module_links: [],
-                module_links_2: {},
             }
         },
         computed: {

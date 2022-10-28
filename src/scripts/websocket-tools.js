@@ -27,6 +27,10 @@ class WebsocketTools {
                     websocket.send(JSON.stringify({'msg_type': 'ping_services'}));
                 }, 300000);
 
+                // --> Send initial service ping
+                console.log('--> INITIAL PING')
+                websocket.send(JSON.stringify({'msg_type': 'ping_services'}));
+
                 // --> Resolve promise
                 this.websocket = websocket;
                 resolve();
