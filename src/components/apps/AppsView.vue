@@ -1,9 +1,14 @@
 <template>
-    <v-container style="padding: 0px 18px 0px 18px; margin-left: 0; margin-right: 0" class="secondary darken-2">
+    <v-container style="padding: 0px 18px 0px 18px;" class="secondary darken-2">
 
         <!--ACTIVE APPS-->
         <v-row justify="center" style="padding-top: 20px;">
             <v-col v-for="app in active_apps" :key="app.name" :cols="app.cols">
+<!--                <transition name="fade">-->
+<!--                    <v-slide-y-transition>-->
+<!--                            <component :is="app.component"></component>-->
+<!--                    </v-slide-y-transition>-->
+<!--                </transition>-->
                 <component :is="app.component"></component>
             </v-col>
         </v-row>

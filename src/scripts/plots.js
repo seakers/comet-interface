@@ -27,6 +27,10 @@ function scatter1d_plot(objectives, designs_sub, point_customdata){
         y: [0, 0, 0, 0],
         type: 'scatter',
         mode: 'markers',
+        marker: {
+            color: 'rgb(17, 157, 255)',
+            size: 5,
+        },
     }
 
     // --> 2. Get axis / text data
@@ -36,7 +40,7 @@ function scatter1d_plot(objectives, designs_sub, point_customdata){
     trace.text = get_text_data(designs_sub);
     console.log('--> TEXT DATA', trace.text);
 
-    integrate_customdata(trace, point_customdata);
+    trace = integrate_customdata(trace, point_customdata);
 
     // --> 3. Create data from traces
     let data = [trace]
@@ -117,6 +121,10 @@ function scatter3d_plot(objectives, designs_sub, point_customdata){
         text: ['110100', '100111', '001100', '100010'],
         type: 'scatter3d',
         mode: 'markers',
+        marker: {
+            color: 'rgb(17, 157, 255)',
+            size: 5,
+        },
     }
 
     // --> 2. Get axis / text data
@@ -132,7 +140,7 @@ function scatter3d_plot(objectives, designs_sub, point_customdata){
     trace.text = get_text_data(designs_sub);
     console.log('--> TEXT DATA', trace.text);
 
-    integrate_customdata(trace, point_customdata);
+    trace = integrate_customdata(trace, point_customdata);
 
     // --> 3. Create data from traces
     let data = [trace]
@@ -181,7 +189,6 @@ function get_axis_data(designs_sub, objective_id){
     return axis_data;
 }
 
-
 function get_text_data(designs_sub){
     let text_data = [];
     for(let x = 0; x < designs_sub.length; x++){
@@ -191,12 +198,18 @@ function get_text_data(designs_sub){
     return text_data;
 }
 
+
+
 function integrate_customdata(trace, customdata){
     let color = [];
     let size = [];
     for(let x = 0; x < customdata.length; x++){
-        if(customdata[x].highlighted === true){
+        if(customdata[x].clicked === true){
             color.push('red');
+            size.push(10);
+        }
+        else if(customdata[x].hovered === true){
+            color.push('orange');
             size.push(9);
         }
         else {

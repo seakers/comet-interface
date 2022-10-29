@@ -4,6 +4,7 @@ import {wsTools} from "../../scripts/websocket-tools";
 const state = {
 
     // --> User Info <--
+    is_admin: true,
     user_id: null,
     user_info_id: null,
     username: '',
@@ -33,35 +34,6 @@ const getters = {
 };
 
 const actions = {
-    async initialize2({ state, commit }){
-        console.log('--> SETTING USER INFO');
-
-        // --> 1. Check to see if user is logged in
-        let dataResponse     = await fetchGet(API_URL + 'auth/check-status');
-        let auth_information = await dataResponse.json();
-
-        if(auth_information.is_logged_in){
-            await wsTools.wsReconnect();
-
-            // --> 2. If logged in, get: username, email, pk
-            await commit('set_user_id', auth_information.pk);
-            await commit('set_user_info_id', auth_information.user_info_pk);
-            await commit('set_user_username', auth_information.username);
-            await commit('set_user_email', auth_information.email);
-            await commit('set_problem_id', auth_information.problem_id);
-            await commit('setEvaluationQueue', auth_information.evaluation_queue);
-
-
-            await commit('set_login_overlay', false);
-            await commit('set_register_overlay', false);
-        }
-        else{
-            // --> 3. If not logged in, open login overlay
-            await commit('set_login_overlay', true);
-            await commit('set_register_overlay', false);
-        }
-    },
-
     async initialize({ state, commit }){
         console.log('--> INITIALIZING TOOL');
         try {

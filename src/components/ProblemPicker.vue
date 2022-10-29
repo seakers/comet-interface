@@ -23,7 +23,7 @@
 
 <script>
     import {mapState} from "vuex";
-    import {UserProblemsSub, SelectedUserProblemSub} from "../scripts/subscriptions";
+    import {UserProblemsSub, CurrentUserProblemSub} from "../scripts/subscriptions";
 
     export default {
         name: "problem-picker",
@@ -84,7 +84,7 @@
                     }
                 },
                 problem_id_sub: {
-                    query: SelectedUserProblemSub,
+                    query: CurrentUserProblemSub,
                     variables() {
                         return {
                             user_info_id: this.user_info_id

@@ -1,5 +1,5 @@
 <template>
-    <v-container style="padding: 0px 18px 0px 18px; margin-left: 0; margin-right: 0"  class="secondary darken-2">
+    <v-container style="padding: 0px 18px 0px 18px;"  class="secondary darken-2">
         <v-row justify="center" style="padding-top: 20px;">
             <v-col cols="12">
                 <v-card>
