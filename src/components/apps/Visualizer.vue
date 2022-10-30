@@ -1,44 +1,85 @@
 <template>
     <v-card elevation="4">
+
+        <v-app-bar class="primary white--text" elevation="0" dense>
+            <v-toolbar-title>Visualizer</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <!--            <v-img :src="lockheed_icon" max-width="170" style="margin-right: 10px;"></v-img>-->
+            <v-menu offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                        {{visualization_type}}
+                        <v-icon dark>
+                            mdi-menu-down
+                        </v-icon>
+
+                    </v-btn>
+                </template>
+                <v-list>
+                    <v-list-item-group v-model="visualization_type">
+                        <v-list-item v-for="vis_type in visualization_types" :value="vis_type">
+                            <v-list-item-title>{{ vis_type }}</v-list-item-title>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </v-menu>
+        </v-app-bar>
+
+
         <v-container>
             <v-row>
 
-
-
-
                 <!--CONTROL PANEL-->
                 <v-col cols="4">
-                    <v-container>
-                        <v-row>
-                            <v-col cols="6">
-                                <div style="font-size: 1.25rem; font-weight: 500; letter-spacing: .0125em;">Visualizer</div>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-combobox v-model="visualization_type" :items="visualization_types" label="Visualization Type" solo dense></v-combobox>
-                            </v-col>
-                        </v-row>
-                        <v-divider style="padding: 10px;"></v-divider>
-
-
-                        <!--TYPE: Design Space-->
-                        <v-container v-if="visualization_type === 'Design Space'">
+                    <v-card height="500" v-if="visualization_type === 'Design Space'">
+                        <v-card-title>Design Space Plot</v-card-title>
+                        <v-card-subtitle>Designs: {{plot_designs.length}}</v-card-subtitle>
+                        <v-container>
                             <v-row style="padding-bottom: 7px;">
-                                <div>Objectives</div>
+                                <v-col style="margin-bottom: -25px;">
+                                    <div style="font-weight: bold;">Objectives</div>
+                                </v-col>
                             </v-row>
                             <v-row>
-                                <v-combobox
-                                    :items="this.problem_subscription.objectives"
-                                    v-model="selected_objectives"
-                                    label="Objectives"
-                                    item-text="name"
-                                    item-value="id"
-                                    solo
-                                    multiple
-                                    small-chips
-                                ></v-combobox>
+                                <v-col>
+                                    <v-combobox
+                                        :items="this.problem_subscription.objectives"
+                                        v-model="selected_objectives"
+                                        label="Objectives"
+                                        item-text="name"
+                                        item-value="id"
+                                        solo
+                                        multiple
+                                        small-chips
+                                    ></v-combobox>
+                                </v-col>
                             </v-row>
+<!--                            <v-row style="padding-bottom: 7px;">-->
+<!--                                <v-col style="margin-bottom: -25px;">-->
+<!--                                    <div style="font-weight: bold;">Axis</div>-->
+<!--                                </v-col>-->
+<!--                            </v-row>-->
+<!--                            <v-row>-->
+<!--                                <v-col>-->
+<!--                                    <v-combobox-->
+<!--                                        :items="this.problem_subscription.objectives"-->
+<!--                                        v-model="selected_objectives"-->
+<!--                                        label="Objectives"-->
+<!--                                        item-text="name"-->
+<!--                                        item-value="id"-->
+<!--                                        solo-->
+<!--                                        multiple-->
+<!--                                        small-chips-->
+<!--                                    ></v-combobox>-->
+<!--                                </v-col>-->
+<!--                            </v-row>-->
                         </v-container>
+                    </v-card>
 
+
+                    <v-card height="500" v-if="visualization_type === 'Coverage Map'">
+                        <v-card-title>Coverage Map Plot</v-card-title>
+                        <v-card-subtitle>Designs: {{plot_designs.length}}</v-card-subtitle>
 
                         <!--TYPE: Coverage Map-->
                         <v-container v-if="visualization_type === 'Coverage Map'">
@@ -46,21 +87,21 @@
 
                             </v-row>
                         </v-container>
-                    </v-container>
+
+                    </v-card>
                 </v-col>
-
-                <v-divider vertical></v-divider>
-
 
 
                 <!--PLOT-->
                 <v-col cols="8">
-                    <plotly :data="plot.data"
-                            :layout="plot.layout"
-                            :display-mode-bar="true"
-                            v-on:click="select_datapoint"
-                            v-on:hover="hover_datapoint"
-                    ></plotly>
+                    <v-card height="500">
+                        <plotly :data="plot.data"
+                                :layout="plot.layout"
+                                :display-mode-bar="true"
+                                v-on:click="select_datapoint"
+                                v-on:hover="hover_datapoint"
+                        ></plotly>
+                    </v-card>
                 </v-col>
 
 

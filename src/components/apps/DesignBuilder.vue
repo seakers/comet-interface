@@ -1,141 +1,89 @@
 <template>
     <v-card elevation="4">
+
+        <v-app-bar class="primary white--text" elevation="0" dense>
+            <v-toolbar-title>Design Builder</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <!--            <v-img :src="lockheed_icon" max-width="170" style="margin-right: 10px;"></v-img>-->
+            <v-menu offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                        <v-icon dark>
+                            mdi-cog
+                        </v-icon>
+                        <v-icon dark>
+                            mdi-menu-down
+                        </v-icon>
+                    </v-btn>
+                </template>
+                <v-list dense>
+                    <v-list-item-group>
+                        <v-list-item v-on:click="clear_eval_queue()">
+                            <v-list-item-title>Purge Queue</v-list-item-title>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </v-menu>
+        </v-app-bar>
+
         <v-container>
-            <v-row>
-                <v-col style="padding: 24px;">
-                    <div style="font-size: 1.25rem; font-weight: 500; letter-spacing: .0125em;">Design Builder</div>
-                </v-col>
-            </v-row>
-
-            <v-divider style="padding: 10px;"></v-divider>
-
             <v-row>
 
                 <!--SELECTED ARCHITECTURE-->
                 <v-col cols="6">
-                    <v-container>
-                        <v-row>
-                            <v-col>
-                                <v-app-bar elevation="0">
-                                    <v-toolbar-title>Selected Design</v-toolbar-title>
-                                    <v-spacer></v-spacer>
-                                    <v-menu>
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-btn color="primary" dark v-bind="attrs" v-on="on">
-                                                Actions
-                                                <v-icon dark>
-                                                    mdi-menu-down
-                                                </v-icon>
-                                            </v-btn>
-                                        </template>
-                                    </v-menu>
-                                </v-app-bar>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12" style="padding-top: 0;">
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row v-for="(decision, idx) in decisions" :key="decision.name">
-                                            <v-col>
-                                                {{decision.name}}
-                                            </v-col>
-                                            <v-spacer></v-spacer>
-                                            <v-col>
+                    <v-card max-height="400" style="overflow-x: scroll; overflow-y: scroll;">
+                        <v-card-title>Selected Design</v-card-title>
+                        <v-card-subtitle>
+
+                        </v-card-subtitle>
+                        <v-container>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row v-for="(decision, idx) in decisions" :key="decision.name">
                                                 <v-btn-toggle v-model="local_design_clicked[idx]" mandatory>
                                                     <v-btn v-for="alternative in decision.alternatives" :key="alternative.value" small>{{alternative.value}}</v-btn>
                                                 </v-btn-toggle>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col>
-                                <v-btn color="primary" :disabled="!can_evaluate_clicked" v-on:click="evaluate_design_clicked()">
-                                    Evaluate Design
-                                </v-btn>
-                            </v-col>
-                        </v-row>
-                    </v-container>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                        <v-card-actions>
+                            <v-btn v-on:click="evaluate_design_clicked" :disabled="!can_evaluate_clicked" color="primary">Evaluate</v-btn>
+                        </v-card-actions>
+                    </v-card>
                 </v-col>
 
-                <v-divider vertical></v-divider>
 
                 <!--HOVERED ARCHITECTURE-->
                 <v-col cols="6">
-                    <v-container>
-                        <v-row>
-                            <v-col>
-                                <v-app-bar elevation="0">
-                                    <v-toolbar-title>Hovered Design</v-toolbar-title>
-                                    <v-spacer></v-spacer>
-                                    <v-menu>
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-btn color="primary" dark v-bind="attrs" v-on="on">
-                                                Actions
-                                                <v-icon dark>
-                                                    mdi-menu-down
-                                                </v-icon>
-                                            </v-btn>
-                                        </template>
-                                    </v-menu>
-                                </v-app-bar>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12">
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row v-for="(decision, idx) in decisions" :key="decision.name">
-                                            <v-col>
-                                                {{decision.name}}
-                                            </v-col>
-                                            <v-spacer></v-spacer>
-                                            <v-col>
+                    <v-card max-height="400" style="overflow-x: scroll; overflow-y: scroll;">
+                        <v-card-title>Hovered Design</v-card-title>
+                        <v-container>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row v-for="(decision, idx) in decisions" :key="decision.name">
                                                 <v-btn-toggle v-model="local_design_hovered[idx]" mandatory>
                                                     <v-btn v-for="alternative in decision.alternatives" :key="alternative.value" small>{{alternative.value}}</v-btn>
                                                 </v-btn-toggle>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col>
-                                <v-btn color="primary" :disabled="!can_evaluate_hovered" v-on:click="evaluate_design_hovered()">
-                                    Evaluate Design
-                                </v-btn>
-                            </v-col>
-                        </v-row>
-                    </v-container>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                        <v-card-actions>
+                            <v-btn v-on:click="evaluate_design_hovered" :disabled="!can_evaluate_hovered" color="primary">Evaluate</v-btn>
+                        </v-card-actions>
+                    </v-card>
                 </v-col>
-
-
-
-
-
             </v-row>
         </v-container>
-
-
-
-
-
-
-
-        <v-card-actions>
-            <v-btn color="warning" v-on:click="clear_eval_queue()" v-if="this.is_admin === true">
-                Clear Queue
-            </v-btn>
-        </v-card-actions>
-
-
-
-
-
     </v-card>
 </template>
 
@@ -155,14 +103,7 @@
 
                 decisions: [],
 
-
-
-
                 // --> Info about current design in builder
-
-
-
-
                 local_design: [],
                 local_design_hovered: [],
                 local_design_clicked: [],
