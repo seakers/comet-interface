@@ -25,6 +25,7 @@
     import DataMining from "./DataMining";
     import DesignBuilder from "./DesignBuilder";
     import EnumerationTool from "./EnumerationTool";
+    import Algorithms from "./Algorithms";
 
 
     export default {
@@ -33,7 +34,8 @@
             Visualizer,
             DataMining,
             DesignBuilder,
-            EnumerationTool
+            EnumerationTool,
+            Algorithms
         },
         data: function () {
             return {

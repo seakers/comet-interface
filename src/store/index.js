@@ -4,6 +4,7 @@ import user from './modules/user';
 import controls from './modules/controls'
 import problem from './modules/problem'
 import services from "./modules/services";
+import dataset from "./modules/dataset";
 
 Vue.use(Vuex);
 
@@ -55,7 +56,8 @@ export default new Vuex.Store({
         user,
         controls,
         problem,
-        services
+        services,
+        dataset
     },
     strict: debug
 });

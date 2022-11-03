@@ -10,8 +10,7 @@ const state = {
     username: '',
     email: '',
 
-    // --> Problem Info <--
-    problem_id: null,
+
 
 
     // --> Navigation Drawer State <--
@@ -35,12 +34,10 @@ const getters = {
 
 const actions = {
     async initialize({ state, commit }){
-        console.log('--> INITIALIZING TOOL');
         try {
             await fetchGet(API_URL + 'auth/check-status').then(async (response) => {
                 if(response.ok){
                     let data = await response.json();
-                    console.log("--> auth/check-status:", data);
                     if(data.is_logged_in){
                         await wsTools.wsReconnect();
 
@@ -50,6 +47,7 @@ const actions = {
                         await commit('set_user_username', data.username);
                         await commit('set_user_email', data.email);
                         await commit('set_problem_id', data.problem_id);
+                        await commit('set_dataset_id', data.dataset_id);
                         await commit('setEvaluationQueue', data.evaluation_queue);
 
 

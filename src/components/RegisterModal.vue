@@ -13,9 +13,9 @@
         <!--REGISTER CARD-->
         <v-card
             width="450"
-            color="primary lighten-1"
             loader-height="6"
             :loading="register_loading"
+            light
         >
             <v-card-title>Register</v-card-title>
             <v-card-text>

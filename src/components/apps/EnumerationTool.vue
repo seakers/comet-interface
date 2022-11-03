@@ -22,6 +22,8 @@
 
         <v-container>
             <v-row>
+
+                <!--ARCHITECTURES-->
                 <v-col cols="5">
                     <v-card height="300">
                         <v-tabs v-model="tab" grow>
@@ -74,6 +76,7 @@
                     </v-card>
                 </v-col>
 
+                <!--SELECTED ARCHITECTURE-->
                 <v-col cols="7">
                     <v-card max-height="400" style="overflow-x: scroll; overflow-y: scroll;">
                         <v-card-title>Selected Design</v-card-title>
@@ -95,8 +98,11 @@
                         </v-container>
                     </v-card>
                 </v-col>
+
             </v-row>
         </v-container>
+
+
     </v-card>
 </template>
 

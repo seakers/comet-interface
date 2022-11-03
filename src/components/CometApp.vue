@@ -49,12 +49,6 @@
 
         </v-navigation-drawer>
 
-
-
-
-
-
-
         <!-- CHAT BOX -->
         <v-navigation-drawer v-model="chatbox"
                              app
@@ -64,7 +58,6 @@
         >
             <chatbox></chatbox>
         </v-navigation-drawer>
-
 
         <!-- APP BAR -->
         <v-app-bar app class="primary darken-1 white--text">
@@ -86,7 +79,6 @@
             </v-btn>
         </v-app-bar>
 
-
         <!-- VUE ROUTER CONTENT -->
         <v-main class="secondary darken-2">
             <transition name="fade">
@@ -95,7 +87,6 @@
                 </v-expand-transition>
             </transition>
         </v-main>
-
 
     </v-app>
 </template>

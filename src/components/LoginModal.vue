@@ -15,9 +15,9 @@
         <!--LOGIN CARD-->
         <v-card
             width="450"
-            color="secondary darken-1"
             loader-height="6"
             :loading="login_loading"
+            light
         >
             <v-card-title>Login</v-card-title>
             <v-card-text>
@@ -65,7 +65,6 @@
             async login(){
                 this.login_loading = 'success';
                 this.error_noti = false;
-                console.log('--> LOGGING IN');
 
 
                 // --> 1. Send login request

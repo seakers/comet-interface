@@ -69,7 +69,8 @@
                                                 <th>Status</th>
                                                 <th v-if="tab === 0">Evaluator</th>
                                                 <th v-if="tab === 1">Algorithm</th>
-                                                <th >Problem</th>
+                                                <th>Problem</th>
+                                                <th>Dataset</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -90,7 +91,8 @@
                                                     <td>{{ container['instance']['SSMStatus'] }}</td>
                                                     <td>{{container['container']['Status']}}</td>
                                                     <td>{{container['container']['VassarStatus']}}</td>
-                                                    <td>{{get_container_problem(container['container']['PROBLEM_ID'])}}</td>
+                                                    <td>{{get_container_problem(container['container']['problem_id'])}}</td>
+                                                    <td>{{container['container']['dataset_id']}}</td>
                                                 </tr>
                                             </tbody>
                                         </template>

@@ -1,18 +1,19 @@
+import * as _ from "lodash";
 
 
+export function get_scatter_plot(objectives, designs_sub, objective_axis) {
 
-export function get_scatter_plot(objectives, designs_sub, point_customdata) {
 
     // --> Scatterplots can handle up to 3 objectives (for now)
 
     if(objectives.length === 1){
-        return scatter1d_plot(objectives, designs_sub, point_customdata);
+        return scatter1d_plot(objectives, designs_sub);
     }
     else if(objectives.length === 2){
-        return scatter2d_plot(objectives, designs_sub, point_customdata);
+        return scatter2d_plot(objectives, designs_sub);
     }
     else if(objectives.length === 3){
-        return scatter3d_plot(objectives, designs_sub, point_customdata);
+        return scatter3d_plot(objectives, designs_sub);
     }
     else{
         return { data: [], layout: {} }
@@ -20,7 +21,7 @@ export function get_scatter_plot(objectives, designs_sub, point_customdata) {
 }
 
 
-function scatter1d_plot(objectives, designs_sub, point_customdata){
+function scatter1d_plot(objectives, designs_sub){
     // --> 1. Create traces
     let trace = {
         x: [0.2, 0.4, 0.6, 0.8],
@@ -28,30 +29,36 @@ function scatter1d_plot(objectives, designs_sub, point_customdata){
         type: 'scatter',
         mode: 'markers',
         marker: {
-            color: 'rgb(17, 157, 255)',
-            size: 5,
+            color: '#122446',
+            size: 12,
         },
+        customdata: [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }]
     }
 
     // --> 2. Get axis / text data
     trace.x = get_axis_data(designs_sub, objectives[0].id);
-    console.log('--> X DATA', trace.x);
+
+    trace.y = [];
+    for(let x = 0; x < trace.x.length; x++){
+        trace.y.push(0);
+    }
 
     trace.text = get_text_data(designs_sub);
-    console.log('--> TEXT DATA', trace.text);
 
-    trace = integrate_customdata(trace, point_customdata);
+    trace = integrate_customdata(trace, designs_sub);
 
     // --> 3. Create data from traces
     let data = [trace]
 
-    // --> 4. Create layout
+    // --> 4. Create layout / scene
     let layout = {
         title: '1D Scatterplot',
         autosize: true,
         hovermode:'closest',
-        xaxis: { title: objectives[0]['name'] },
-        yaxis: { title: '' }
+        xaxis: { title: objectives[0]['name'], gridcolor: "#ffffff", zerolinecolor: "#ffffff" },
+        yaxis: { title: '', gridcolor: "#ffffff", zerolinecolor: "#ffffff" },
+        plot_bgcolor:"#e5ecf6",
+        paper_bgcolor:"#ffffff",
     }
 
     return {
@@ -60,7 +67,7 @@ function scatter1d_plot(objectives, designs_sub, point_customdata){
     }
 }
 
-function scatter2d_plot(objectives, designs_sub, point_customdata){
+function scatter2d_plot(objectives, designs_sub){
 
     // --> 1. Create traces
     let trace = {
@@ -70,8 +77,8 @@ function scatter2d_plot(objectives, designs_sub, point_customdata){
         type: 'scatter2d',
         mode: 'markers',
         marker: {
-            color: 'rgb(17, 157, 255)',
-            size: 5,
+            color: '#122446',
+            size: 12,
             // line: {
             //     color: 'rgb(231, 99, 250)',
             //     width: 2
@@ -90,7 +97,7 @@ function scatter2d_plot(objectives, designs_sub, point_customdata){
     trace.text = get_text_data(designs_sub);
     // console.log('--> TEXT DATA', trace.text);
 
-    trace = integrate_customdata(trace, point_customdata);
+    trace = integrate_customdata(trace, designs_sub);
 
     // --> 2. Create data from traces
     let data = [trace]
@@ -100,9 +107,10 @@ function scatter2d_plot(objectives, designs_sub, point_customdata){
         title: '2D Scatterplot',
         autosize: true,
         hovermode:'closest',
-        xaxis: { title: objectives[0]['name'] },
-        yaxis: { title: objectives[1]['name'] },
-        // plot_bgcolor:"lightgrey",
+        xaxis: { title: objectives[0]['name'], gridcolor: "#ffffff", zerolinecolor: "#ffffff" },
+        yaxis: { title: objectives[1]['name'], gridcolor: "#ffffff", zerolinecolor: "#ffffff" },
+        plot_bgcolor:"#e5ecf6",
+        paper_bgcolor:"#ffffff",
     }
 
     return {
@@ -111,7 +119,7 @@ function scatter2d_plot(objectives, designs_sub, point_customdata){
     }
 }
 
-function scatter3d_plot(objectives, designs_sub, point_customdata){
+function scatter3d_plot(objectives, designs_sub){
 
     // --> 1. Create traces
     let trace = {
@@ -122,25 +130,21 @@ function scatter3d_plot(objectives, designs_sub, point_customdata){
         type: 'scatter3d',
         mode: 'markers',
         marker: {
-            color: 'rgb(17, 157, 255)',
-            size: 5,
+            color: '#122446',
+            size: 12,
         },
     }
 
     // --> 2. Get axis / text data
     trace.x = get_axis_data(designs_sub, objectives[0].id);
-    console.log('--> X DATA', trace.x);
 
     trace.y = get_axis_data(designs_sub, objectives[1].id);
-    console.log('--> Y DATA', trace.y);
 
     trace.z = get_axis_data(designs_sub, objectives[2].id);
-    console.log('--> Z DATA', trace.z);
 
     trace.text = get_text_data(designs_sub);
-    console.log('--> TEXT DATA', trace.text);
 
-    trace = integrate_customdata(trace, point_customdata);
+    trace = integrate_customdata(trace, designs_sub);
 
     // --> 3. Create data from traces
     let data = [trace]
@@ -161,6 +165,7 @@ function scatter3d_plot(objectives, designs_sub, point_customdata){
             b: 0,
             t: 0,
         },
+        plot_bgcolor:"#ffffff",
     }
 
     return {
@@ -205,16 +210,20 @@ function integrate_customdata(trace, customdata){
     let size = [];
     for(let x = 0; x < customdata.length; x++){
         if(customdata[x].clicked === true){
-            color.push('red');
-            size.push(10);
+            color.push('#F44336');
+            size.push(14);
         }
         else if(customdata[x].hovered === true){
-            color.push('orange');
-            size.push(9);
+            color.push('#ff8200');
+            size.push(12);
+        }
+        else if(customdata[x].origin.startsWith("GA-")){
+            color.push('#76FF03');
+            size.push(10);
         }
         else {
             color.push('#122446');
-            size.push(8);
+            size.push(10);
         }
     }
 

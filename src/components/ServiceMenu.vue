@@ -22,7 +22,7 @@
         <v-container style="padding-left: 8px; padding-right: 8px; padding-top: 0;">
             <v-row dense>
                 <v-col cols="12">
-                    <v-card rounded>
+                    <v-card elevation="4">
                         <v-card-text style="padding: 8px;">
                             <p style="color: black; font-size: medium; margin-bottom: 0;">Design Evaluators</p>
                             <p style="margin-bottom: 0;">Available: {{available_design_evaluators}}</p>
@@ -32,7 +32,7 @@
             </v-row>
             <v-row dense>
                 <v-col cols="12">
-                    <v-card rounded>
+                    <v-card elevation="4">
                         <v-card-text style="padding: 8px;">
                             <p style="color: black; font-size: medium; margin-bottom: 0;">Genetic Algorithms</p>
                             <p style="margin-bottom: 0;">Running: {{running_genetic_algorithms}}</p>
@@ -43,7 +43,7 @@
         </v-container>
 
         <v-list-item style="margin-bottom: 10px;">
-            <v-btn color="success" to="/services" dark>Service Page</v-btn>
+            <v-btn color="success" to="/services" dark block>Service Page</v-btn>
         </v-list-item>
 
 <!--        <v-list-item>-->
@@ -75,6 +75,7 @@
                 username: state => state.user.username,
                 email: state => state.user.email,
                 problem_id: state => state.problem.problem_id,
+                dataset_id: state => state.problem.dataset_id,
             }),
             ...mapGetters({
                 serviceStatus: 'getServiceStatus',
@@ -86,8 +87,9 @@
                 for(let x = 0; x < vassar_containers.length; x++){
                     let container = vassar_containers[x];
                     let vassar_status = container['container']['VassarStatus'];
-                    let problem_id = container['container']['PROBLEM_ID'];
-                    if(vassar_status === 'RUNNING' && parseInt(problem_id) === this.problem_id){
+                    let problem_id = container['container']['problem_id'];
+                    let dataset_id = container['container']['dataset_id'];
+                    if(vassar_status === 'RUNNING' && parseInt(problem_id) === this.problem_id && parseInt(dataset_id) === this.dataset_id){
                         count += 1;
                     }
                 }
@@ -100,7 +102,7 @@
                 for(let x = 0; x < containers.length; x++){
                     let container = containers[x];
                     let container_status = container['container']['VassarStatus'];
-                    let problem_id = container['container']['PROBLEM_ID'];
+                    let problem_id = container['container']['problem_id'];
                     if(container_status === 'RUNNING' && parseInt(problem_id) === this.problem_id){
                         count += 1;
                     }

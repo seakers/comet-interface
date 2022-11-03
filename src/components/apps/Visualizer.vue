@@ -31,7 +31,7 @@
 
                 <!--CONTROL PANEL-->
                 <v-col cols="4">
-                    <v-card height="500" v-if="visualization_type === 'Design Space'">
+                    <v-card height="450" v-if="visualization_type === 'Design Space'">
                         <v-card-title>Design Space Plot</v-card-title>
                         <v-card-subtitle>Designs: {{plot_designs.length}}</v-card-subtitle>
                         <v-container>
@@ -55,29 +55,50 @@
                                 </v-col>
                             </v-row>
 <!--                            <v-row style="padding-bottom: 7px;">-->
-<!--                                <v-col style="margin-bottom: -25px;">-->
+<!--                                <v-col style="margin-bottom: -20px;">-->
 <!--                                    <div style="font-weight: bold;">Axis</div>-->
 <!--                                </v-col>-->
 <!--                            </v-row>-->
 <!--                            <v-row>-->
-<!--                                <v-col>-->
-<!--                                    <v-combobox-->
-<!--                                        :items="this.problem_subscription.objectives"-->
-<!--                                        v-model="selected_objectives"-->
-<!--                                        label="Objectives"-->
+<!--                                <v-col cols="12" style="padding-bottom: 0px;">-->
+<!--                                    <v-select-->
+<!--                                        :items="this.selected_objectives"-->
+<!--                                        v-model="objective_axis[0]"-->
+<!--                                        label="X Axis"-->
 <!--                                        item-text="name"-->
 <!--                                        item-value="id"-->
-<!--                                        solo-->
-<!--                                        multiple-->
-<!--                                        small-chips-->
-<!--                                    ></v-combobox>-->
+<!--                                        outlined-->
+<!--                                        dense-->
+<!--                                    ></v-select>-->
+<!--                                </v-col>-->
+<!--                                <v-col v-if="this.selected_objectives.length > 1" cols="12"  style="padding-bottom: 0; padding-top: 0; margin-top: -10px;">-->
+<!--                                    <v-select-->
+<!--                                        :items="this.selected_objectives"-->
+<!--                                        v-model="objective_axis[1]"-->
+<!--                                        label="Y Axis"-->
+<!--                                        item-text="name"-->
+<!--                                        item-value="id"-->
+<!--                                        outlined-->
+<!--                                        dense-->
+<!--                                    ></v-select>-->
+<!--                                </v-col>-->
+<!--                                <v-col v-if="this.selected_objectives.length > 2" cols="12" style="padding-bottom: 0; padding-top: 0; margin-top: -10px;">-->
+<!--                                    <v-select-->
+<!--                                        :items="this.selected_objectives"-->
+<!--                                        v-model="objective_axis[2]"-->
+<!--                                        label="Z Axis"-->
+<!--                                        item-text="name"-->
+<!--                                        item-value="id"-->
+<!--                                        outlined-->
+<!--                                        dense-->
+<!--                                    ></v-select>-->
 <!--                                </v-col>-->
 <!--                            </v-row>-->
                         </v-container>
                     </v-card>
 
 
-                    <v-card height="500" v-if="visualization_type === 'Coverage Map'">
+                    <v-card height="450" v-if="visualization_type === 'Coverage Map'">
                         <v-card-title>Coverage Map Plot</v-card-title>
                         <v-card-subtitle>Designs: {{plot_designs.length}}</v-card-subtitle>
 
@@ -94,18 +115,16 @@
 
                 <!--PLOT-->
                 <v-col cols="8">
-                    <v-card height="500">
+                    <v-card v-if="selected_objectives.length < 3">
                         <plotly :data="plot.data"
                                 :layout="plot.layout"
                                 :display-mode-bar="true"
+
                                 v-on:click="select_datapoint"
                                 v-on:hover="hover_datapoint"
                         ></plotly>
                     </v-card>
                 </v-col>
-
-
-
 
             </v-row>
         </v-container>
@@ -119,6 +138,7 @@
     import { Plotly } from 'vue-plotly'
     import * as _ from "lodash";
     import {ProblemDesignQuery} from "../../scripts/queries";
+    import {convertDesignToList} from "../../scripts/design-helpers";
 
     export default {
         name: "visualizer",
@@ -127,30 +147,31 @@
         },
         data: function () {
             return {
+
+                // --> VIZ Types
                 visualization_types: [
                     'Design Space',
                     'Coverage Map'
                 ],
                 visualization_type: 'Design Space',
 
-
+                // --> VIS: Coverage Map
+                // --> VIS: Design Space
                 selected_objectives: [],
+                objective_axis: [0, 0, 0],
 
 
+                // --> Problem State
                 problem_subscription: {
                     objectives: []
                 },
 
-
-
-                // --> Designs State <--
+                // --> Designs
                 initialized: false,
                 design_subscription: [],
 
-
                 plot_designs: [],
                 plot_designs_ids: [],
-                plot_designs_customdata: [],
             }
         },
         computed: {
@@ -161,6 +182,9 @@
                 email: state => state.user.email,
                 nav_bar_apps: state => state.controls.nav_bar_apps,
                 problem_id: state => state.problem.problem_id,
+                dataset_id: state => state.problem.dataset_id,
+                design_clicked_eval_request: state => state.problem.design_clicked_eval_request,
+                design_hovered_eval_request: state => state.problem.design_hovered_eval_request,
             }),
             plot() {
 
@@ -169,20 +193,25 @@
                     return { data: [], layout: {} }
                 }
 
+
                 // --> 2. Return proper plot type
-                let return_plot = get_scatter_plot(this.selected_objectives, this.plot_designs, this.plot_designs_customdata);
+                let return_plot = get_scatter_plot(this.selected_objectives, this.plot_designs, this.objective_axis);
                 console.log('--> PLOT', return_plot);
                 return return_plot
             },
         },
         methods: {
             async initialize() {
+                if(this.dataset_id === null || this.problem_id === null){
+                    return;
+                }
+
                 this.initialized = false;
 
                 // --> 1. Reset state
                 this.plot_designs = [];
                 this.plot_designs_ids = [];
-                this.plot_designs_customdata = [];
+
 
                 // --> 2. Get current designs
                 let query = await this.$apollo.query({
@@ -191,21 +220,24 @@
                     query: ProblemDesignQuery,
                     variables: {
                         problem_id: this.problem_id,
+                        dataset_id: this.dataset_id
                     }
                 });
                 let data = query.data;
 
                 // --> 3. Set state
-                let design_ids = []
-                let design_customdata = [];
+                let plot_designs = [];
+                let plot_designs_ids = [];
                 for(let x = 0; x < data.design_query.length; x++){
-                    let design_id = data.design_query[x].id;
-                    design_ids.push(design_id);
-                    design_customdata.push({id: design_id, hovered: false, clicked: false});
+                    let design = _.cloneDeep(data.design_query[x]);
+                    design.hovered = false;
+                    design.clicked = false;
+                    design.structure = convertDesignToList(design.representation);
+                    plot_designs.push(design);
+                    plot_designs_ids.push(design.id);
                 }
-                this.plot_designs_ids = design_ids;
-                this.plot_designs_customdata = design_customdata;
-                this.plot_designs = data.design_query;
+                this.plot_designs = plot_designs;
+                this.plot_designs_ids = plot_designs_ids;
 
                 this.initialized = true;
             },
@@ -215,12 +247,9 @@
                     return;
                 }
                 let point = points[0];
-                let point_id = point.customdata.id;
-                let point_chromosome = point.text;
 
-                this.highlight_clicked_designs([point_id]);
-                this.$store.commit('set_design', point_chromosome);
-                this.$store.commit('set_design_clicked', point_chromosome);
+                this.highlight_clicked_designs([point.customdata.id]);
+                this.$store.commit('set_store_design_clicked', _.cloneDeep(point.customdata));
             },
             hover_datapoint(event){
                 let points = event.points;
@@ -228,38 +257,46 @@
                     return;
                 }
                 let point = points[0];
-                let point_id = point.customdata.id;
-                let point_chromosome = point.text;
 
-                this.highlight_hovered_designs([point_id]);
-                this.$store.commit('set_design', point_chromosome);
-                this.$store.commit('set_design_hovered', point_chromosome);
+                this.highlight_hovered_designs([point.customdata.id]);
+                this.$store.commit('set_store_design_hovered', _.cloneDeep(point.customdata));
             },
             highlight_hovered_designs(design_ids){
-                let plot_designs_customdata = _.cloneDeep(this.plot_designs_customdata);
-                for(let x = 0; x < plot_designs_customdata.length; x++){
-                    if(design_ids.includes(plot_designs_customdata[x].id)){
-                        plot_designs_customdata[x].hovered = true;
+                for(let x = 0; x < this.plot_designs.length; x++){
+                    let design = this.plot_designs[x];
+                    if(design_ids.includes(design.id)){
+                        design.hovered = true;
                     }
                     else{
-                        plot_designs_customdata[x].hovered = false;
+                        design.hovered = false;
                     }
                 }
-                this.plot_designs_customdata = plot_designs_customdata;
             },
             highlight_clicked_designs(design_ids){
-                let plot_designs_customdata = _.cloneDeep(this.plot_designs_customdata);
-                for(let x = 0; x < plot_designs_customdata.length; x++){
-                    if(design_ids.includes(plot_designs_customdata[x].id)){
-                        plot_designs_customdata[x].clicked = true;
+                for(let x = 0; x < this.plot_designs.length; x++){
+                    let design = this.plot_designs[x];
+                    if(design_ids.includes(design.id)){
+                        design.clicked = true;
                     }
                     else{
-                        plot_designs_customdata[x].clicked = false;
+                        design.clicked = false;
                     }
                 }
-                this.plot_designs_customdata = plot_designs_customdata;
             },
-
+            async clear_clicked(){
+                let designs = _.cloneDeep(this.plot_designs);
+                for(let x = 0; x < designs.length; x++){
+                    designs[x].clicked = false;
+                }
+                this.plot_designs = designs;
+            },
+            async clear_hovered(){
+                let designs = _.cloneDeep(this.plot_designs);
+                for(let x = 0; x < designs.length; x++){
+                    designs[x].hovered = false;
+                }
+                this.plot_designs = designs;
+            }
         },
         apollo: {
             $subscribe: {
@@ -289,29 +326,45 @@
                     variables() {
                         return {
                             problem_id: this.problem_id,
+                            dataset_id: this.dataset_id,
                             id_list: this.plot_designs_ids
                         }
                     },
-                    result ({data}){
+                    async result ({data}){
                         if(data.design_subscription.length === 0){
                             return;
                         }
                         console.log('--> ', data.design_subscription.length, ' NEW DESIGNS');
                         this.initialized = false;
 
+                        // --> Clear clicked designs
+                        await this.clear_clicked();
+
                         let designs = data.design_subscription;
                         for(let x = 0; x < designs.length; x++){
-                            let design = designs[x];
-                            let design_customdata = {id: design.id, hovered: false, clicked: false};
-                            if(x === (designs.length-1)){design_customdata.clicked = true;}
-                            this.plot_designs_customdata.push(design_customdata);
-                            this.plot_designs_ids.push(design.id);
+                            let design = _.cloneDeep(designs[x]);
+                            design.clicked = false;
+                            design.hovered = false;
+                            design.structure = convertDesignToList(design.representation);
+                            if(x === (designs.length-1)){design.clicked = true;}
                             this.plot_designs.push(design);
+                            this.plot_designs_ids.push(design.id);
+
+                            if(this.design_clicked_eval_request === design.representation){
+                                await this.$store.commit('set_store_design_clicked', _.cloneDeep(design));
+                                this.$store.commit('setDesignClickedEvalRequest', null);
+                            }
+                            if(this.design_hovered_eval_request === design.representation){
+                                await this.$store.commit('set_store_design_hovered', _.cloneDeep(design));
+                                this.$store.commit('setDesignHoveredEvalRequest', null);
+                            }
                         }
 
-                        // --> Set last design as clicked
+                        // --> Set clicked design in store
                         let last_design = designs[designs.length-1];
-                        this.$store.commit('set_design_clicked', last_design.representation);
+                        last_design.structure = convertDesignToList(last_design.representation);
+                        last_design.clicked = true;
+                        last_design.hovered = false;
 
                         this.initialized = true;
                     },
@@ -322,19 +375,19 @@
             }
         },
         watch: {
-            selected_objectives(){
-                console.log('SELECTED OBJECTIVES', this.selected_objectives);
-            },
             async problem_id() {
-                if(this.problem_id !== null){
-                    await this.initialize();
-                }
+                await this.initialize();
+            },
+            async dataset_id() {
+                await this.initialize();
+            },
+            async plot_designs(){
+                await this.$store.dispatch('calculateMetrics', _.cloneDeep(this.plot_designs));
+                await this.$store.commit('set_store_designs', _.cloneDeep(this.plot_designs));
             }
         },
         async mounted() {
-            if(this.problem_id !== null){
-                await this.initialize();
-            }
+            await this.initialize();
         }
     }
 </script>
