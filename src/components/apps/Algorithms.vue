@@ -29,8 +29,8 @@
                     </v-list-item-group>
                 </v-list>
             </v-menu>
-
         </v-app-bar>
+
         <v-container>
             <v-row>
 
@@ -44,8 +44,6 @@
                             <v-row justify="center">
                                 <v-col cols="12" style="padding: 0">
 
-
-
                                     <v-virtual-scroll :items="container_algorithms" item-height="65" height="250">
                                         <template v-slot:default="{ item }">
                                             <v-list-item :key="item.ga_id" two-line>
@@ -55,22 +53,17 @@
                                                 </v-list-item-content>
 
                                                 <v-list-item-action>
-                                                    <v-btn depressed small>
+                                                    <v-btn depressed small v-on:click="">
                                                         LOAD
                                                         <v-icon color="orange darken-4" right>
                                                             mdi-open-in-new
                                                         </v-icon>
                                                     </v-btn>
                                                 </v-list-item-action>
-
                                             </v-list-item>
                                             <v-divider></v-divider>
                                         </template>
                                     </v-virtual-scroll>
-
-
-
-
 
                                 </v-col>
                             </v-row>
@@ -158,6 +151,8 @@
     import {sqsClient} from "../../scripts/sqsClient";
     import * as _ from "lodash";
     import {SendMessageCommand, ReceiveMessageCommand, DeleteMessageCommand} from "@aws-sdk/client-sqs";
+    import {generateName} from "../../scripts/nameGenerator";
+    import {send_ping_message, poll_message, delete_message} from "../../scripts/sqsFunctions";
 
     export default {
         name: "algorithms",
@@ -183,16 +178,18 @@
 
                 // --> ALGORITHM BUILDER
                 build_id: null,
+                build_name: '',
                 build_run_view: false,
                 build_type: null,
                 build_popSize: 30,
                 build_maxEvals: 500,
                 build_crossoverProb: null, // uniform
                 build_mutationProb: null,  // uniform
-                objective_ids: null,
+                objective_ids: [],
 
 
-
+                // --> CONTROLLER
+                controller: null,
 
                 // --> CONTAINER STORE
                 container_store: null,
@@ -244,16 +241,10 @@
 
         },
         methods: {
-            async generate_ga_id(){
-                let length = 15;
-                let result           = '';
-                let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                let charactersLength = characters.length;
-                for ( let i = 0; i < length; i++ ) {
-                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                }
-                return result;
-            },
+
+
+
+
             async select_container(container, idx){
                 this.selected_container = container;
                 this.selected_container_idx = idx;
@@ -266,8 +257,6 @@
                 // --> 1. Ping selected container and get info
                 // await this.ping_selected_container();
 
-                // --> 2. Set info in local store
-
             },
             async ping_selected_container(){
                 if(this.selected_container === null){
@@ -275,108 +264,57 @@
                 }
 
                 // --> 1. Send ping message / get response
-                await this.send_ping_message();
-
+                await send_ping_message(this.ping_request_queue);
 
                 // --> 2. Poll for response
-                let message = null;
-                let attempts = 3;
-                let counter = 0;
-                while(message === null && counter <= attempts){
-                    message = await this.poll_ping_response();
-                    counter += 1;
-                    await new Promise(r => setTimeout(r, 1000));
-                }
-                if(counter === attempts){
-                    console.log("--> NO RESPONSE", message);
+                let message = await poll_message(this.ping_response_queue);
+                if(message === null){
                     return;
                 }
-                else{
-                    console.log('--> GA RESPONSE', message);
-                }
 
-                // --> Parse container controller updates
+                // --> 3. Parse ping message
+                await this.parse_ping_message(message)
+
+                // --> 4. Delete ping message
+                await delete_message(message);
+            },
+            async parse_ping_message(message){
+
+                // --> 1. Parse Controller
                 let controller_json = message['MessageAttributes']['controller']['StringValue'];
-                let controller = JSON.parse(JSON.parse(controller_json));
+                this.controller = JSON.parse(JSON.parse(controller_json));
 
-                // --> Parse container algorithm updates
+                // --> 2. Parse Algorithms
                 this.container_algorithms = [];
                 let keyset = Object.keys(message['MessageAttributes']);
                 let ga_keys = keyset.filter(function (str) { return str.indexOf("GA-") !== -1; })
-                console.log('--> GA PING KEYSET', ga_keys);
                 for(let x = 0; x < ga_keys.length; x++){
                     let ga_key = ga_keys[x];
                     let algorithm =  JSON.parse(JSON.parse(_.cloneDeep(message['MessageAttributes'][ga_key]['StringValue'])));
                     algorithm.ga_id = ga_key;
-                    console.log('--> ALGORITHM ITEM', algorithm);
-
-                    let population = [];
+                    algorithm.pop = [];
                     for(let y = 0; y < algorithm.population.length; y++){
                         let design = JSON.parse(algorithm.population[y])
-                        population.push(design);
+                        algorithm.pop.push(design);
                         console.log('--> DESIGN ITEM', design);
                     }
-                    algorithm.pop = population;
-
                     this.container_algorithms.push(algorithm);
                 }
+            },
 
-                await this.delete_message(message);
+
+            async select_algorithm(algorithm, idx){
+
             },
-            async send_ping_message(){
-                console.log('--> SENDING SQS GA PING MESSAGE');
-                const command = new SendMessageCommand({
-                    QueueUrl: this.ping_request_queue,
-                    MessageBody: "boto3",
-                    MessageAttributes: {
-                        msgType: {
-                            DataType: "String",
-                            StringValue: "ping"
-                        }
-                    }
-                });
-                const response = await sqsClient.send(command);
-                console.log('--> SQS RESPONSE', response);
-            },
-            async poll_ping_response(){
-                if(this.ping_response_queue !== null){
-                    console.log('--> SENDING SQS GA PING POLL', this.ping_response_queue);
-                    const command = new ReceiveMessageCommand({
-                        QueueUrl: this.ping_response_queue,
-                        MaxNumberOfMessages: 1,
-                        WaitTimeSeconds: 5,
-                        MessageAttributeNames: ['All']
-                    });
-                    const response = await sqsClient.send(command);
-                    console.log('--> SQS RECEIVE MESSAGE RESPONSE', response);
-                    if(response['Messages'] === null){
-                        return null;
-                    }
-                    return response['Messages'][0];
-                }
-                else{
-                    return null;
-                }
-            },
-            async delete_message(message){
-                const del_command = new DeleteMessageCommand({
-                    QueueUrl: this.ping_response_queue,
-                    ReceiptHandle: message['ReceiptHandle']
-                });
-                const response = await sqsClient.send(del_command);
-                console.log('--> SQS DELETE MESSAGE RESPONSE', response);
-            },
+
+
+
             async run_algorithm(){
-                let id_string = "[";
-                for(let x = 0; x < this.objective_ids.length; x++){
-                    if(x !== 0){
-                        id_string += ", ";
-                    }
-                    id_string += this.objective_ids[x].id.toString();
-                }
-                id_string += "]";
-                this.build_id = 'GA-' + await this.generate_ga_id()
-                console.log('--> SENDING SQS START ALGORITHM METHOD');
+                let id_string = await this.get_objective_str()
+
+                this.build_id = 'GA-' + await this.generate_ga_id();
+                // this.build_id = 'GA-' + this.build_name;
+
                 const command = new SendMessageCommand({
                     QueueUrl: this.private_request_queue,
                     MessageBody: "boto3",
@@ -423,14 +361,39 @@
                         }
                     }
                 });
-                const response = await sqsClient.send(command);
-                console.log('--> SQS RESPONSE', response);
+                await sqsClient.send(command);
             },
+            async get_objective_str(){
+                let id_string = "[";
+                for(let x = 0; x < this.objective_ids.length; x++){
+                    if(x !== 0){
+                        id_string += ", ";
+                    }
+                    id_string += this.objective_ids[x].id.toString();
+                }
+                id_string += "]";
+                return id_string
+            },
+            async generate_ga_id(){
+                let length = 15;
+                let result           = '';
+                let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let charactersLength = characters.length;
+                for ( let i = 0; i < length; i++ ) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                return result;
+            },
+
+
             async stop_all_container_algorithms(){
                 for(let x = 0; x < this.container_algorithms.length; x++){
                     let ga_id = this.container_algorithms[x].ga_id;
                     await this.stop_algorithm(ga_id);
                 }
+            },
+            async stop_selected_algorithm(){
+                await this.stop_algorithm(this.selected_container.ga_id);
             },
             async stop_algorithm(ga_id){
                 const command = new SendMessageCommand({
@@ -485,6 +448,7 @@
             },
         },
         mounted() {
+            this.build_name = generateName();
             this.container_store = _.cloneDeep(this.serviceStatus['comet-algorithm']);
         }
 
