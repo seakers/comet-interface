@@ -73,7 +73,7 @@ function scatter2d_plot(objectives, designs_sub){
     let trace = {
         x: [0.2, 0.4, 0.6, 0.8],
         y: [10, 20, 30, 60],
-        text: ['110100', '100111', '001100', '100010'],
+        // text: ['110100', '100111', '001100', '100010'],
         type: 'scatter2d',
         mode: 'markers',
         marker: {
@@ -94,7 +94,7 @@ function scatter2d_plot(objectives, designs_sub){
     trace.y = get_axis_data(designs_sub, objectives[1].id);
     // console.log('--> Y DATA', trace.y);
 
-    trace.text = get_text_data(designs_sub);
+    // trace.text = get_text_data(designs_sub);
     // console.log('--> TEXT DATA', trace.text);
 
     trace = integrate_customdata(trace, designs_sub);
@@ -111,6 +111,9 @@ function scatter2d_plot(objectives, designs_sub){
         yaxis: { title: objectives[1]['name'], gridcolor: "#ffffff", zerolinecolor: "#ffffff" },
         plot_bgcolor:"#e5ecf6",
         paper_bgcolor:"#ffffff",
+        hoverlabel: {
+            bgcolor: 'white'
+        }
     }
 
     return {
@@ -208,14 +211,15 @@ function get_text_data(designs_sub){
 function integrate_customdata(trace, customdata){
     let color = [];
     let size = [];
+    let labels = [];
     for(let x = 0; x < customdata.length; x++){
         if(customdata[x].clicked === true){
             color.push('#F44336');
-            size.push(14);
+            size.push(15);
         }
         else if(customdata[x].hovered === true){
             color.push('#ff8200');
-            size.push(12);
+            size.push(13);
         }
         else if(customdata[x].origin.startsWith("GA-")){
             color.push('#76FF03');
@@ -225,9 +229,11 @@ function integrate_customdata(trace, customdata){
             color.push('#122446');
             size.push(10);
         }
+        labels.push('testt');
     }
 
     trace.customdata = customdata
+    trace.labels = labels;
     trace.marker.color = color;
     trace.marker.size = size;
     return trace;

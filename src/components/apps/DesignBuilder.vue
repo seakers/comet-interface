@@ -197,11 +197,8 @@
                     this.$store.commit('setDesignClickedEvalRequest', value);
                 }
             },
-            can_evaluate(){
-                  return (this.evaluation_queue !== null && this.available_design_evaluators > 0);
-            },
             can_evaluate_hovered(){
-                if(!this.can_evaluate){
+                if(this.evaluation_queue === null || this.available_design_evaluators === 0){
                     this.hovered_design_eval_reason = 'Evaluation Queue not set OR No available design evaluators!'
                     return false;
                 }
@@ -219,7 +216,7 @@
                 }
             },
             can_evaluate_clicked(){
-                if(!this.can_evaluate){
+                if(this.evaluation_queue === null || this.available_design_evaluators === 0){
                     this.clicked_design_eval_reason = 'Evaluation Queue not set OR No available design evaluators!'
                     return false;
                 }
@@ -331,6 +328,14 @@
                         input: {
                             DataType: "String",
                             StringValue: input
+                        },
+                        dataset_id: {
+                            DataType: "String",
+                            StringValue: this.dataset_id.toString()
+                        },
+                        origin: {
+                            DataType: "String",
+                            StringValue: "user"
                         }
                     }
                 });
@@ -453,8 +458,8 @@
             },
             evaluation_queue() {
                 console.log('--> EVAL QUEUE', this.evaluation_queue);
-            }
-        }
+            },
+        },
     }
 </script>
 

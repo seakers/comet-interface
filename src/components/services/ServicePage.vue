@@ -34,13 +34,9 @@
                                         <v-list-item v-on:click="run_container()" :disabled="cant_run_container" dense><v-list-item-title>Run Container</v-list-item-title></v-list-item>
                                         <v-list-item v-on:click="stop_container()" :disabled="cant_stop_container" dense><v-list-item-title>Stop Container</v-list-item-title></v-list-item>
                                         <v-list-item v-on:click="update_container()" :disabled="cant_run_container" dense><v-list-item-title>Update Container</v-list-item-title></v-list-item>
-                                        <v-divider></v-divider>
+                                        <v-divider v-if="tab === 0"></v-divider>
                                         <div v-if="tab === 0">
                                             <v-list-item v-on:click="build_vassar()" :disabled="cant_msg_vassar" dense><v-list-item-title>Build Evaluator</v-list-item-title></v-list-item>
-                                        </div>
-                                        <div v-if="tab === 1">
-                                            <v-list-item v-on:click="start_ga()" :disabled="cant_start_ga" dense><v-list-item-title>Start GA</v-list-item-title></v-list-item>
-                                            <v-list-item v-on:click="stop_ga()" :disabled="cant_stop_ga" dense><v-list-item-title>Stop GA</v-list-item-title></v-list-item>
                                         </div>
                                     </v-list>
                                 </v-menu>
@@ -56,7 +52,8 @@
                                             <thead>
                                             <tr>
                                                 <th colspan="6" scope="colgroup" style="text-align: center; font-weight: normal; font-size: 17px;">EC2 Instance</th>
-                                                <th colspan="3" scope="colgroup" style="text-align: center; font-weight: normal; font-size: 17px;">Docker Container</th>
+                                                <th v-if="tab === 0" colspan="3" scope="colgroup" style="text-align: center; font-weight: normal; font-size: 17px;">Docker Container</th>
+                                                <th v-if="tab === 1" colspan="1" scope="colgroup" style="text-align: center; font-weight: normal; font-size: 17px;">Docker Container</th>
                                             </tr>
                                             <tr>
                                                 <th><v-checkbox v-model="selectAll" :disabled="cant_select_all"></v-checkbox></th>
@@ -68,9 +65,7 @@
 
                                                 <th>Status</th>
                                                 <th v-if="tab === 0">Evaluator</th>
-                                                <th v-if="tab === 1">Algorithm</th>
-                                                <th>Problem</th>
-                                                <th>Dataset</th>
+                                                <th v-if="tab === 0">Problem</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -90,9 +85,8 @@
                                                     <td>{{ container['instance']['Status'] }}</td>
                                                     <td>{{ container['instance']['SSMStatus'] }}</td>
                                                     <td>{{container['container']['Status']}}</td>
-                                                    <td>{{container['container']['VassarStatus']}}</td>
-                                                    <td>{{get_container_problem(container['container']['problem_id'])}}</td>
-                                                    <td>{{container['container']['dataset_id']}}</td>
+                                                    <td v-if="tab === 0">{{container['container']['VassarStatus']}}</td>
+                                                    <td v-if="tab === 0">{{get_container_problem(container['container']['problem_id'])}}</td>
                                                 </tr>
                                             </tbody>
                                         </template>
@@ -529,14 +523,6 @@
                 this.resource_msg('build_vassar', 15);
                 this.set_selected_instances_busy();
             },
-            start_ga(){
-                this.resource_msg('start_ga', 15);
-                this.set_selected_instances_busy();
-            },
-            stop_ga(){
-                this.resource_msg('stop_ga', 15);
-                this.set_selected_instances_busy();
-            },
 
             // --> Action Methods Helpers
             resource_msg(command, timeout){
@@ -725,6 +711,8 @@
             console.log('--> MOUNTING SERVICE PAGE');
             if(wsTools.websocket === null){
                 await wsTools.wsConnect(this.$store);
+            }
+            if(this.currentStatus['comet-evaluator'].length === 0){
                 this.send_ping();
             }
             this.reload_module();

@@ -98,7 +98,6 @@
                         </v-container>
                     </v-card>
                 </v-col>
-
             </v-row>
         </v-container>
 

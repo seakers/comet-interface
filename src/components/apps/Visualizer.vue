@@ -17,7 +17,7 @@
                 </template>
                 <v-list>
                     <v-list-item-group v-model="visualization_type">
-                        <v-list-item v-for="vis_type in visualization_types" :value="vis_type">
+                        <v-list-item v-for="vis_type in visualization_types" :value="vis_type" :key="vis_type">
                             <v-list-item-title>{{ vis_type }}</v-list-item-title>
                         </v-list-item>
                     </v-list-item-group>
