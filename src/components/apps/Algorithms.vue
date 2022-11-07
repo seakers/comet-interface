@@ -37,23 +37,38 @@
                 <!--CONTAINER ALGORITHMS-->
                 <v-col cols="4">
                     <v-card>
-                        <v-card-title v-if="selected_container === null">No Server Selected</v-card-title>
-                        <v-card-title v-if="selected_container !== null">Server {{selected_container_idx}}</v-card-title>
+                        <v-container>
+                            <v-row>
+                                <v-col cols="8">
+                                    <div class="text-h6 text-no-wrap" style="padding-top: 5px;">
+                                        <div v-if="selected_container === null">No Server Selected</div>
+                                        <div v-if="selected_container !== null">Server {{selected_container_idx}}</div>
+                                    </div>
+                                </v-col>
+                                <v-spacer></v-spacer>
+                                <v-col style="padding-right: 0;">
+                                    <v-btn v-on:click="ping_selected_container()" icon right light><v-icon color="primary">mdi-reload</v-icon></v-btn>
+                                </v-col>
+                                <v-col style="padding-left: 0;">
+                                    <v-btn v-on:click="stop_all_container_algorithms()" icon right light><v-icon color="danger">mdi-delete</v-icon></v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-container>
                         <v-divider></v-divider>
                         <v-container>
                             <v-row justify="center">
                                 <v-col cols="12" style="padding: 0">
 
-                                    <v-virtual-scroll :items="container_algorithms" item-height="65" height="250">
-                                        <template v-slot:default="{ item }">
+                                    <v-virtual-scroll :items="container_algorithms" item-height="65" height="275">
+                                        <template v-slot:default="{ index, item }">
                                             <v-list-item :key="item.ga_id" two-line>
                                                 <v-list-item-content>
-                                                    <v-list-item-title>{{ item.ga_id }}</v-list-item-title>
+                                                    <v-list-item-title>{{ item.name }}</v-list-item-title>
                                                     <v-list-item-subtitle>NSGA-II</v-list-item-subtitle>
                                                 </v-list-item-content>
 
                                                 <v-list-item-action>
-                                                    <v-btn depressed small v-on:click="">
+                                                    <v-btn depressed small v-on:click="select_algorithm(index)">
                                                         LOAD
                                                         <v-icon color="orange darken-4" right>
                                                             mdi-open-in-new
@@ -72,7 +87,7 @@
                         <v-container>
                             <v-row>
                                 <v-col cols="12">
-                                    <v-btn :disabled="selected_container === null" block elevation="0" color="primary" v-on:click="build_run_view = !build_run_view">Build Algorithm</v-btn>
+                                    <v-btn :disabled="selected_container === null" block elevation="0" v-on:click="build_run_view = !build_run_view" :color="build_run_view ? '#ff8200' : 'primary'" >Build Algorithm</v-btn>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -80,38 +95,40 @@
                 </v-col>
 
 
+
+
                 <!--ALGORITHM VIEWER-->
                 <v-col cols="8" v-if="build_run_view === false">
-                    <v-card height="375">
-                        <v-btn v-on:click="ping_selected_container()">
-                            test
-                        </v-btn>
+                    <v-card height="400" v-if="selected_algorithm !== null">
+                        <v-card-title>{{ this.selected_algorithm.name }}</v-card-title>
+                        <v-card-subtitle>NSGA-II</v-card-subtitle>
+                        <v-container>
+                            <v-row>
+                                <v-col>
 
-                        <v-btn v-on:click="stop_all_container_algorithms()">
-                            stop all
-                        </v-btn>
-
+                                </v-col>
+                            </v-row>
+                        </v-container>
                     </v-card>
                 </v-col>
 
 
                 <!--ALGORITHM BUILDER-->
                 <v-col cols="8" v-if="build_run_view === true">
-                    <v-card>
-                        <v-card-title>Algorithm Builder</v-card-title>
+                    <v-card height="400">
+                        <v-card-title style="padding-bottom: 0;">Algorithm Builder</v-card-title>
                         <v-container>
                             <v-row style="padding-top: 30px;">
                                 <v-spacer></v-spacer>
-                                <v-col cols="5">
-                                    <v-form>
-                                        <v-select label="Algorithm" v-model="build_type" :items="['E-MOEA']" height="40" required dense></v-select>
-                                        <v-select label="Crossover" v-model="build_crossoverProb" :items="['Uniform']" item-text="name" item-value="id" height="40" required dense></v-select>
-                                        <v-select label="Mutation" v-model="build_mutationProb" :items="['Uniform']" item-text="name" item-value="id" height="40" required dense></v-select>
-                                    </v-form>
-                                </v-col>
+
                                 <v-col cols="6">
-                                    <v-slider v-model="build_popSize" label="Initial Population Size" min="20" max="200" thumb-label="always" :thumb-size="30"></v-slider>
-                                    <v-slider v-model="build_maxEvals" label="Max NFE" min="400" max="5000" thumb-label="always" :thumb-size="30" style="margin-top: 5px;"></v-slider>
+                                    <v-text-field
+                                        label="Name"
+                                        v-model="build_name"
+                                        append-icon="mdi-reload"
+                                        v-on:click:append="refresh_name()"
+                                    ></v-text-field>
+                                    <v-select label="Algorithm" v-model="build_type" :items="['E-MOEA']" height="40" required dense></v-select>
                                     <v-combobox
                                         :items="this.problem_subscription.objectives"
                                         v-model="objective_ids"
@@ -123,6 +140,14 @@
                                         small-chips
                                     ></v-combobox>
                                 </v-col>
+                                <v-col cols="5">
+                                    <v-form>
+                                        <v-select label="Crossover" v-model="build_crossoverProb" :items="['Uniform']" item-text="name" item-value="id" height="40" required dense></v-select>
+                                        <v-select label="Mutation" v-model="build_mutationProb" :items="['Uniform']" item-text="name" item-value="id" height="40" required dense></v-select>
+                                        <v-slider v-model="build_popSize" label="Initial Population Size" min="20" max="200" thumb-label="always" :thumb-size="30"></v-slider>
+                                        <v-slider v-model="build_maxEvals" label="Max NFE" min="400" max="5000" thumb-label="always" :thumb-size="30" style="margin-top: 5px;"></v-slider>
+                                    </v-form>
+                                </v-col>
                             </v-row>
                             <v-spacer></v-spacer>
                         </v-container>
@@ -133,10 +158,6 @@
                                 </v-col>
                             </v-row>
                         </v-container>
-<!--                        <v-card-actions>-->
-<!--                            <v-spacer></v-spacer>-->
-<!--                            <v-btn color="warning" elevation="0">Submit</v-btn>-->
-<!--                        </v-card-actions>-->
                     </v-card>
                 </v-col>
 
@@ -150,7 +171,7 @@
     import {mapState} from "vuex";
     import {sqsClient} from "../../scripts/sqsClient";
     import * as _ from "lodash";
-    import {SendMessageCommand, ReceiveMessageCommand, DeleteMessageCommand} from "@aws-sdk/client-sqs";
+    import {SendMessageCommand} from "@aws-sdk/client-sqs";
     import {generateName} from "../../scripts/nameGenerator";
     import {send_ping_message, poll_message, delete_message} from "../../scripts/sqsFunctions";
 
@@ -177,9 +198,9 @@
                 },
 
                 // --> ALGORITHM BUILDER
+                build_run_view: false,
                 build_id: null,
                 build_name: '',
-                build_run_view: false,
                 build_type: null,
                 build_popSize: 30,
                 build_maxEvals: 500,
@@ -204,6 +225,11 @@
                 container_init_status: null,
 
                 container_algorithms: [],
+
+                // --> ALGORITHM INFO
+                selected_algorithm_idx: null,
+                algorithm_status: null,
+                algorithm_pop: null,
 
             }
         },
@@ -238,13 +264,24 @@
                 }
                 return true;
             },
-
+            selected_algorithm(){
+                if(this.selected_algorithm_idx === null || this.container_algorithms.length === 0){
+                    return null;
+                }
+                let algorithm = this.container_algorithms[this.selected_algorithm_idx];
+                this.algorithm_status = algorithm.status;
+                this.algorithm_pop = algorithm['pop'];
+                return algorithm;
+            },
+            selected_algorithm_plot(){
+                if(this.selected_algorithm === null){
+                    return null;
+                }
+            }
         },
         methods: {
 
-
-
-
+            // --> Select container
             async select_container(container, idx){
                 this.selected_container = container;
                 this.selected_container_idx = idx;
@@ -276,9 +313,10 @@
                 await this.parse_ping_message(message)
 
                 // --> 4. Delete ping message
-                await delete_message(message);
+                await delete_message(this.ping_response_queue, message);
             },
             async parse_ping_message(message){
+                console.log('--> GA PING MESSAGE', message);
 
                 // --> 1. Parse Controller
                 let controller_json = message['MessageAttributes']['controller']['StringValue'];
@@ -293,6 +331,7 @@
                     let algorithm =  JSON.parse(JSON.parse(_.cloneDeep(message['MessageAttributes'][ga_key]['StringValue'])));
                     algorithm.ga_id = ga_key;
                     algorithm.pop = [];
+                    algorithm.name = ga_key.substring(3);
                     for(let y = 0; y < algorithm.population.length; y++){
                         let design = JSON.parse(algorithm.population[y])
                         algorithm.pop.push(design);
@@ -302,18 +341,16 @@
                 }
             },
 
-
-            async select_algorithm(algorithm, idx){
-
+            // --> Select algorithm
+            async select_algorithm(index){
+                this.selected_algorithm_idx = index;
             },
 
-
-
+            // --> Run algorithm
             async run_algorithm(){
                 let id_string = await this.get_objective_str()
 
-                this.build_id = 'GA-' + await this.generate_ga_id();
-                // this.build_id = 'GA-' + this.build_name;
+                this.build_id = 'GA-' + this.build_name;
 
                 const command = new SendMessageCommand({
                     QueueUrl: this.private_request_queue,
@@ -374,7 +411,7 @@
                 id_string += "]";
                 return id_string
             },
-            async generate_ga_id(){
+            async generate_id(){
                 let length = 15;
                 let result           = '';
                 let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -384,12 +421,17 @@
                 }
                 return result;
             },
+            refresh_name(){
+                this.build_name = generateName();
+            },
 
-
+            // --> Stop Algorithm
             async stop_all_container_algorithms(){
                 for(let x = 0; x < this.container_algorithms.length; x++){
                     let ga_id = this.container_algorithms[x].ga_id;
-                    await this.stop_algorithm(ga_id);
+                    if(ga_id.startsWith("GA-")){
+                        await this.stop_algorithm(ga_id);
+                    }
                 }
             },
             async stop_selected_algorithm(){
@@ -462,6 +504,11 @@
 
 .border {
     border: 2px dashed orange;
+}
+
+.bg-active {
+    background-color: #ff8200;
+    color : white !important;
 }
 
 </style>

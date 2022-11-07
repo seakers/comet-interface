@@ -5,10 +5,10 @@ const state = {
 
     nav_bar_apps: [
         {name: 'Visualizer', icon: 'mdi-chart-scatter-plot', component: 'visualizer', cols: 12, active: true},
-        {name: 'Design Builder', icon: 'mdi-wrench', component: 'design-builder', cols: 12, active: false},
+        {name: 'Design Builder', icon: 'mdi-wrench', component: 'design-builder', cols: 12, active: true},
         {name: 'Data Mining', icon: 'mdi-pickaxe', component: 'data-mining', cols: 6, active: false},
         {name: 'Enumeration Tool', icon: 'mdi-basket-fill', component: 'enumeration-tool', cols: 12, active: false},
-        {name: 'Algorithms', icon: 'mdi-function-variant', component: 'algorithms', cols: 12, active: true}
+        {name: 'Algorithms', icon: 'mdi-function-variant', component: 'algorithms', cols: 12, active: false}
     ]
 
 

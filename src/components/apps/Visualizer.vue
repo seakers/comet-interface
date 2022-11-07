@@ -115,7 +115,7 @@
 
                 <!--PLOT-->
                 <v-col cols="8">
-                    <v-card v-if="selected_objectives.length < 3">
+                    <v-card v-if="selected_objectives.length < 4">
                         <plotly :data="plot.data"
                                 :layout="plot.layout"
                                 :display-mode-bar="true"
