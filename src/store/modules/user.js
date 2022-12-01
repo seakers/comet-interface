@@ -83,6 +83,7 @@ const mutations = {
         state.user_id = user_id;
     },
     async set_user_info_id(state, user_id){
+        console.log('--> USER INFO ID', user_id);
         state.user_info_id = user_id;
     },
     async set_user_username(state, username){

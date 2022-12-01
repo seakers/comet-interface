@@ -46,10 +46,13 @@
                                     </div>
                                 </v-col>
                                 <v-spacer></v-spacer>
-                                <v-col style="padding-right: 0;">
-                                    <v-btn v-on:click="ping_selected_container()" icon right light><v-icon color="primary">mdi-reload</v-icon></v-btn>
+                                <v-col style="padding-right: 0;" v-if="selected_container !== null">
+                                    <v-btn v-on:click="ping_selected_container()" icon right light :disabled="!can_ping_container">
+                                        <v-icon color="primary" v-if="can_ping_container">mdi-reload</v-icon>
+                                        <v-icon color="primary" v-if="!can_ping_container">mdi-timer-sand</v-icon>
+                                    </v-btn>
                                 </v-col>
-                                <v-col style="padding-left: 0;">
+                                <v-col style="padding-left: 0;" v-if="selected_container !== null">
                                     <v-btn v-on:click="stop_all_container_algorithms()" icon right light><v-icon color="danger">mdi-delete</v-icon></v-btn>
                                 </v-col>
                             </v-row>
@@ -66,7 +69,6 @@
                                                     <v-list-item-title>{{ item.name }}</v-list-item-title>
                                                     <v-list-item-subtitle>NSGA-II</v-list-item-subtitle>
                                                 </v-list-item-content>
-
                                                 <v-list-item-action>
                                                     <v-btn depressed small v-on:click="select_algorithm(index)">
                                                         LOAD
@@ -99,12 +101,24 @@
 
                 <!--ALGORITHM VIEWER-->
                 <v-col cols="8" v-if="build_run_view === false">
+<!--                    <v-card height="400">-->
                     <v-card height="400" v-if="selected_algorithm !== null">
-                        <v-card-title>{{ this.selected_algorithm.name }}</v-card-title>
+                        <v-card-title>Algorithm Name</v-card-title>
                         <v-card-subtitle>NSGA-II</v-card-subtitle>
                         <v-container>
                             <v-row>
-                                <v-col>
+                                <v-col cols="6">
+                                    <v-container>
+                                        <v-row><div class="text--primary">Starting Population: {{JSON.parse(this.selected_algorithm.parameters).popSize}}</div></v-row>
+                                        <v-row><div class="text--primary">Max NFE: 1000</div></v-row>
+                                        <v-row>
+                                            <div v-for="obj_id in this.selected_algorithm.objectives">
+                                                <v-chip small>{{get_objective_name(obj_id)}}</v-chip>
+                                            </div>
+                                        </v-row>
+                                    </v-container>
+                                </v-col>
+                                <v-col cols="6">
 
                                 </v-col>
                             </v-row>
@@ -223,13 +237,16 @@
                 private_request_queue: null,
                 private_response_queue: null,
                 container_init_status: null,
+                can_ping_container: true,
 
                 container_algorithms: [],
 
                 // --> ALGORITHM INFO
                 selected_algorithm_idx: null,
                 algorithm_status: null,
-                algorithm_pop: null,
+                algorithm_population: null,
+                algorithm_objectives: null,
+                algorithm_parameters: null,
 
             }
         },
@@ -253,6 +270,9 @@
                 if(this.available_genetic_algorithms === 0){
                     return false;
                 }
+                if(this.build_crossoverProb === null || this.build_mutationProb === null){
+                    return false;
+                }
                 if(this.objective_ids === null){
                     return false;
                 }
@@ -270,7 +290,9 @@
                 }
                 let algorithm = this.container_algorithms[this.selected_algorithm_idx];
                 this.algorithm_status = algorithm.status;
-                this.algorithm_pop = algorithm['pop'];
+                this.algorithm_population = algorithm['pop'];
+                this.algorithm_objectives = algorithm['objectives'];
+                this.algorithm_parameters = algorithm['parameters'];
                 return algorithm;
             },
             selected_algorithm_plot(){
@@ -301,11 +323,13 @@
                 }
 
                 // --> 1. Send ping message / get response
+                this.can_ping_container = false;
                 await send_ping_message(this.ping_request_queue);
 
                 // --> 2. Poll for response
                 let message = await poll_message(this.ping_response_queue);
                 if(message === null){
+                    this.can_ping_container = true;
                     return;
                 }
 
@@ -314,9 +338,10 @@
 
                 // --> 4. Delete ping message
                 await delete_message(this.ping_response_queue, message);
+                this.can_ping_container = true;
             },
             async parse_ping_message(message){
-                console.log('--> GA PING MESSAGE', message);
+                console.log('--> GA PING RESPONSE', message);
 
                 // --> 1. Parse Controller
                 let controller_json = message['MessageAttributes']['controller']['StringValue'];
@@ -333,9 +358,7 @@
                     algorithm.pop = [];
                     algorithm.name = ga_key.substring(3);
                     for(let y = 0; y < algorithm.population.length; y++){
-                        let design = JSON.parse(algorithm.population[y])
-                        algorithm.pop.push(design);
-                        console.log('--> DESIGN ITEM', design);
+                        algorithm.pop.push(JSON.parse(algorithm.population[y]));
                     }
                     this.container_algorithms.push(algorithm);
                 }
@@ -410,6 +433,15 @@
                 }
                 id_string += "]";
                 return id_string
+            },
+            get_objective_name(obj_id){
+                for(let x = 0; x < this.problem_subscription.objectives.length; x++){
+                    let objective = this.problem_subscription.objectives[x];
+                    if(parseInt(obj_id) === parseInt(objective.id)){
+                        return objective.name;
+                    }
+                }
+                return '';
             },
             async generate_id(){
                 let length = 15;

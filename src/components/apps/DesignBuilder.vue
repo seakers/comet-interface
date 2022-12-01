@@ -200,6 +200,7 @@
             can_evaluate_hovered(){
                 if(this.evaluation_queue === null || this.available_design_evaluators === 0){
                     this.hovered_design_eval_reason = 'Evaluation Queue not set OR No available design evaluators!'
+                    console.log(this.hovered_design_eval_reason);
                     return false;
                 }
                 if(!this.hovered_design_already_indexed){
@@ -212,6 +213,7 @@
                         return true;
                     }
                     this.hovered_design_eval_reason = 'Design already indexed and evaluated';
+                    console.log(this.hovered_design_eval_reason);
                     return false;
                 }
             },
@@ -237,13 +239,13 @@
                 if(this.local_design_clicked === null){
                     return "";
                 }
-                return ("Design D" + this.local_design_clicked.id);
+                return ("Design " + this.local_design_clicked.id);
             },
             hovered_design_title(){
                 if(this.local_design_hovered === null){
                     return "";
                 }
-                return ("Design D" + this.local_design_hovered.id);
+                return ("Design " + this.local_design_hovered.id);
             },
             clicked_design_structure(){
                 return convertDesignToString(this.local_design_clicked.structure);

@@ -53,7 +53,7 @@
         <v-navigation-drawer v-model="chatbox"
                              app
                              right
-                             color="primary lighten-1"
+                             color="primary"
                              width="400"
         >
             <chatbox></chatbox>

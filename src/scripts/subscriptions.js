@@ -93,18 +93,34 @@ const ProblemDecisionsSub = gql`
 
 
 const DesignExistsSub = gql`
-subscription design_exists_sub($problem_id: bigint!, $dataset_id: bigint!, $representation: String!) {
-    design_sub: comet_problem_architecture(where: {problem_id: {_eq: $problem_id}, dataset_id: {_eq: $dataset_id}, representation: {_eq: $representation}}) {
-        id
-        representation
-        evaluation_status
+    subscription design_exists_sub($problem_id: bigint!, $dataset_id: bigint!, $representation: String!) {
+        design_sub: comet_problem_architecture(where: {problem_id: {_eq: $problem_id}, dataset_id: {_eq: $dataset_id}, representation: {_eq: $representation}}) {
+            id
+            representation
+            evaluation_status
+        }
     }
-}`;
+`;
 
 
 
 
 
+const MessageSubscription = gql`
+    subscription MessageSubscription($user_info_id: bigint!) {
+        messages_db: comet_assistant_dialoguehistory(where: {user_information_id: {_eq: $user_info_id}, hidden: {_eq: false}}, order_by: {date: asc}) {
+            id
+            date
+            message
+            message_type
+            message_writer
+            more_info
+            hidden
+            loading
+            response_error
+        }
+    }
+`;
 
 
 
@@ -118,5 +134,6 @@ export {
     ProblemDecisionsSub,
     DesignExistsSub,
     ProblemDesignSubscription,
-    UserDatasetsSub
+    UserDatasetsSub,
+    MessageSubscription
 }

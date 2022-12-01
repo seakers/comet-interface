@@ -1,6 +1,5 @@
 <template>
     <v-card elevation="4">
-
         <v-app-bar class="primary white--text" elevation="0" dense>
             <v-toolbar-title>Visualizer</v-toolbar-title>
             <v-spacer></v-spacer>
@@ -25,7 +24,6 @@
             </v-menu>
         </v-app-bar>
 
-
         <v-container>
             <v-row>
 
@@ -35,23 +33,30 @@
                         <v-card-title>Design Space Plot</v-card-title>
                         <v-card-subtitle>Designs: {{plot_designs.length}}</v-card-subtitle>
                         <v-container>
-                            <v-row style="padding-bottom: 7px;">
-                                <v-col style="margin-bottom: -25px;">
-                                    <div style="font-weight: bold;">Objectives</div>
-                                </v-col>
-                            </v-row>
                             <v-row>
                                 <v-col>
-                                    <v-combobox
-                                        :items="this.problem_subscription.objectives"
-                                        v-model="selected_objectives"
-                                        label="Objectives"
-                                        item-text="name"
-                                        item-value="id"
-                                        solo
-                                        multiple
-                                        small-chips
-                                    ></v-combobox>
+                                    <v-form>
+                                        <v-combobox
+                                            :items="this.problem_subscription.objectives"
+                                            v-model="selected_objectives"
+                                            label="Objectives"
+                                            item-text="name"
+                                            item-value="id"
+                                            multiple
+                                            small-chips
+                                            outlined
+                                        ></v-combobox>
+                                        <v-select
+                                            :items="this.all_traces"
+                                            v-model="plot_traces"
+                                            label="Traces"
+                                            item-text="name"
+                                            item-value="id"
+                                            multiple
+                                            small-chips
+                                            outlined
+                                        ></v-select>
+                                    </v-form>
                                 </v-col>
                             </v-row>
 <!--                            <v-row style="padding-bottom: 7px;">-->
@@ -161,10 +166,13 @@
                 objective_axis: [0, 0, 0],
 
 
-                // --> Problem State
+                // --> Plot Options
                 problem_subscription: {
                     objectives: []
                 },
+                all_traces: [],
+                plot_traces: [],
+
 
                 // --> Designs
                 initialized: false,
@@ -195,7 +203,7 @@
 
 
                 // --> 2. Return proper plot type
-                let return_plot = get_scatter_plot(this.selected_objectives, this.plot_designs, this.objective_axis);
+                let return_plot = get_scatter_plot(this.selected_objectives, this.plot_designs, this.plot_traces, this.objective_axis);
                 console.log('--> PLOT', return_plot);
                 return return_plot
             },
@@ -226,6 +234,7 @@
                 let data = query.data;
 
                 // --> 3. Set state
+                let all_traces = [];
                 let plot_designs = [];
                 let plot_designs_ids = [];
                 for(let x = 0; x < data.design_query.length; x++){
@@ -235,10 +244,19 @@
                     design.structure = convertDesignToList(design.representation);
                     plot_designs.push(design);
                     plot_designs_ids.push(design.id);
+                    if(!all_traces.includes(design.origin)){
+                        all_traces.push(design.origin);
+                    }
                 }
                 this.plot_designs = plot_designs;
                 this.plot_designs_ids = plot_designs_ids;
-
+                this.all_traces = all_traces;
+                if(this.all_traces.includes("user")){
+                    this.plot_traces = ["user"];
+                }
+                else{
+                    this.plot_traces = [];
+                }
                 this.initialized = true;
             },
             select_datapoint(event){
@@ -349,6 +367,10 @@
                             if(x === (designs.length-1)){design.clicked = true;}
                             this.plot_designs.push(design);
                             this.plot_designs_ids.push(design.id);
+                            if(!this.all_traces.includes(design.origin)){
+                                this.all_traces.push(design.origin);
+                                this.plot_traces.push(design.origin);
+                            }
 
                             if(this.design_clicked_eval_request === design.representation){
                                 await this.$store.commit('set_store_design_clicked', _.cloneDeep(design));
@@ -391,8 +413,6 @@
         }
     }
 </script>
-
-
 
 <style scoped>
 
