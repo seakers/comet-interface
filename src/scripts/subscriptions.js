@@ -53,23 +53,24 @@ subscription current_problem_info_sub($problem_id: bigint!) {
 
 
 const ProblemDesignSubscription = gql`
-subscription problem_design_subscription($problem_id: bigint!, $dataset_id: bigint!, $id_list: [bigint!]) {
-    design_subscription: comet_problem_architecture(where: {problem_id: {_eq: $problem_id}, dataset_id: {_eq: $dataset_id}, evaluation_status: {_eq: true}, id: {_nin: $id_list}}, order_by: {id: asc}) {
-        evaluation_status
-        representation
-        id
-        user_information_id
-        origin
-        objectives: comet_problem_objectivevalues(order_by: {objective_id: asc}) {
-            value
-            explanation
-            objective_id
-            objective_name: comet_problem_objective {
-                name
+    subscription problem_design_subscription($problem_id: bigint!, $dataset_id: bigint!, $id_list: [bigint!]) {
+        design_subscription: comet_problem_architecture(where: {problem_id: {_eq: $problem_id}, dataset_id: {_eq: $dataset_id}, evaluation_status: {_eq: true}, id: {_nin: $id_list}}, order_by: {id: asc}) {
+            evaluation_status
+            representation
+            id
+            user_information_id
+            origin
+            objectives: comet_problem_objectivevalues(order_by: {objective_id: asc}) {
+                value
+                explanation
+                objective_id
+                objective_name: comet_problem_objective {
+                    name
+                }
             }
         }
     }
-}`;
+`;
 
 
 

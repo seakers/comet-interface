@@ -97,7 +97,7 @@
                             <!--ADDITIONAL INFO DROPDOWN-->
                             <v-divider v-if="item.more_info !== null" style="margin-top: 0; margin-bottom: 0;"></v-divider>
                             <v-card-actions v-if="item.more_info !== null" style="padding-top: 8px; padding-left: 16px;">
-                                <span class="text-subtitle-2">Additional Info</span>
+                                <span class="text-subtitle-2">Full Report</span>
                                 <v-spacer></v-spacer>
                                 <v-btn icon @click="item.show_more_info = !item.show_more_info">
                                     <v-icon>{{ item.show_more_info ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>

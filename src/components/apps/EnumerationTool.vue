@@ -25,7 +25,7 @@
 
                 <!--ARCHITECTURES-->
                 <v-col cols="5">
-                    <v-card height="300">
+                    <v-card height="325">
                         <v-tabs v-model="tab" grow>
                             <v-tab>Evaluation Space</v-tab>
                             <v-tab>Enumeration Space</v-tab>
@@ -38,7 +38,7 @@
                             <v-row justify="center" v-if="tab === 0">
                                 <v-col cols="12">
                                     <v-radio-group v-model="curr_designs_selected" style="margin-top: 0;" row class="d-flex flex-row justify-center">
-                                        <v-radio v-for="item in curr_page_designs" :key="item.id" :label="`D${item.id}`" :value="item.id" v-on:click="select_design(item)"></v-radio>
+                                        <v-radio v-for="(item, idx) in curr_page_designs" :key="item.id" :label="`D${item.id}`" :value="item.id" v-on:click="select_design(item)"></v-radio>
                                     </v-radio-group>
                                 </v-col>
                                 <v-col cols="12" style="padding-top: 0;">
@@ -46,7 +46,7 @@
                                         <v-pagination
                                             v-model="curr_designs_page"
                                             :length="parseInt(this.curr_designs.length / this.designs_per_page)+1"
-                                            :total-visible="3"
+                                            :total-visible="5"
                                         ></v-pagination>
                                     </div>
                                 </v-col>
@@ -57,7 +57,7 @@
                             <v-row justify="center" v-if="tab === 1">
                                 <v-col cols="12">
                                     <v-radio-group v-model="enum_designs_selected" style="margin-top: 0;" row>
-                                        <v-radio v-for="item in enum_page_designs" :key="item.id" :label="`D${item.id}`" :value="item.id"></v-radio>
+                                        <v-radio v-for="(item, idx) in enum_page_designs" :key="item.id" :label="`D${item.id}`" :value="item.id"></v-radio>
                                     </v-radio-group>
                                 </v-col>
                                 <v-col cols="12">
@@ -78,9 +78,9 @@
 
                 <!--SELECTED ARCHITECTURE-->
                 <v-col cols="7">
-                    <v-card max-height="400" style="overflow-x: scroll; overflow-y: scroll;">
-                        <v-card-title>Selected Design</v-card-title>
-                        <v-card-subtitle>ID</v-card-subtitle>
+                    <v-card height="325" style="overflow-x: scroll; overflow-y: scroll;" v-if="this.selected_design_obj !== null">
+                        <v-card-title>Design {{this.selected_design_obj.id}}</v-card-title>
+                        <v-card-subtitle>{{parse_objectives(this.selected_design_obj)}}</v-card-subtitle>
                         <v-container>
                             <v-row>
                                 <v-col cols="12">
@@ -131,6 +131,7 @@
                 curr_designs_page: 1,
 
                 selected_design: {id:0, representation:''},
+                selected_design_obj: null,
 
                 // --> Enumeration Space
                 enum_designs: [],
@@ -143,6 +144,7 @@
                 user_id: state => state.user.user_id,
                 user_info_id: state => state.user.user_info_id,
                 problem_id: state => state.problem.problem_id,
+                dataset_id: state => state.problem.dataset_id,
                 evaluation_queue: state => state.services.evaluation_queue,
                 available_design_evaluators: state => state.services.available_design_evaluators
             }),
@@ -173,6 +175,7 @@
                     query: ProblemDesignQuery,
                     variables: {
                         problem_id: this.problem_id,
+                        dataset_id: this.dataset_id
                     }
                 });
                 let data = query.data;
@@ -198,6 +201,22 @@
             async enumerate_space() {
 
             },
+            parse_objectives(design){
+                if(design === null || design === {}){
+                    return "";
+                }
+                let objective_str = '';
+                for(let x = 0; x < design.objectives.length; x++){
+                    if(x !== 0){
+                        objective_str += ', ';
+                    }
+                    let objective = design.objectives[x];
+                    let objective_name = objective.objective_name.name;
+                    let value = objective.value;
+                    objective_str += (objective_name + ': ' + value);
+                }
+                return objective_str;
+            },
             async select_design(design){
                 console.log('--> SELECTED DESIGN', design);
                 let selected_design = [];
@@ -205,6 +224,7 @@
                     selected_design.push(parseInt(design.representation.charAt(x)))
                 }
                 this.selected_design = selected_design;
+                this.selected_design_obj = design
             },
         },
         apollo: {
@@ -214,6 +234,7 @@
                     variables() {
                         return {
                             problem_id: this.problem_id,
+                            dataset_id: this.dataset_id,
                             id_list: this.curr_designs_ids
                         }
                     },
