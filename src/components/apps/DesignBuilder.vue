@@ -20,6 +20,9 @@
                         <v-list-item v-on:click="clear_eval_queue()">
                             <v-list-item-title>Purge Queue</v-list-item-title>
                         </v-list-item>
+                        <v-list-item v-on:click="call_refresh()">
+                          <v-list-item-title>Refresh</v-list-item-title>
+                        </v-list-item>
                     </v-list-item-group>
                 </v-list>
             </v-menu>
@@ -167,6 +170,8 @@
 
                 clicked_design_eval_reason: '',
                 hovered_design_eval_reason: '',
+
+                refresh: 0,
             }
         },
         computed: {
@@ -198,7 +203,8 @@
                 }
             },
             can_evaluate_hovered(){
-                if(this.evaluation_queue === null || this.available_design_evaluators === 0){
+              this.refresh;
+              if(this.evaluation_queue === null || this.available_design_evaluators === 0){
                     this.hovered_design_eval_reason = 'Evaluation Queue not set OR No available design evaluators!'
                     console.log(this.hovered_design_eval_reason);
                     return false;
@@ -218,6 +224,7 @@
                 }
             },
             can_evaluate_clicked(){
+                this.refresh;
                 if(this.evaluation_queue === null || this.available_design_evaluators === 0){
                     this.clicked_design_eval_reason = 'Evaluation Queue not set OR No available design evaluators!'
                     return false;
@@ -369,6 +376,9 @@
                     'evaluation_status': false
                 };
                 return design_obj;
+            },
+            call_refresh(){
+              this.refresh++;
             }
         },
         apollo: {

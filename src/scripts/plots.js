@@ -213,6 +213,10 @@ function integrate_trace_customdata(trace, customdata, trace_key){
             color.push('#f7b788');
             size.push(10);
         }
+        if(customdata[x].selected === true){
+            color.push('#ec72b7');
+            size.push(12);
+        }
         else if(customdata[x].origin.startsWith("GA-")){
             color.push('#43d5b2');
             size.push(10);

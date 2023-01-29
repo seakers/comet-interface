@@ -103,14 +103,39 @@
                     </v-card>
 
 
-                    <v-card height="450" v-if="visualization_type === 'Coverage Map'">
-                        <v-card-title>Coverage Map Plot</v-card-title>
-                        <v-card-subtitle>Designs: {{plot_designs.length}}</v-card-subtitle>
+                    <v-card height="450" v-if="visualization_type === 'Feature Space'">
+                        <v-card-title>Feature Space Plot</v-card-title>
+                        <v-card-subtitle>Designs: {{plot_designs.length}} </v-card-subtitle>
 
-                        <!--TYPE: Coverage Map-->
-                        <v-container v-if="visualization_type === 'Coverage Map'">
+                        <v-divider></v-divider>
+                        <v-container>
+                            <v-row justify="center">
+                                <v-col cols="12" style="padding: 0">
+                                    <v-virtual-scroll :items="features" item-height="95" height="280">
+                                        <template v-slot:default="{ index, item }" style="background-color: #c9c9c961;">
+                                            <v-list-item :key="index" three-line>
+                                                <v-list-item-content>
+                                                    <v-list-item-title>Rule {{index+1}}</v-list-item-title>
+                                                    <v-list-item-subtitle>LHS: {{rule_string(item.lhs)}}</v-list-item-subtitle>
+                                                    <v-list-item-subtitle>RHS: {{rule_string(item.rhs)}}</v-list-item-subtitle>
+                                                </v-list-item-content>
+                                            </v-list-item>
+                                            <v-divider></v-divider>
+                                        </template>
+                                    </v-virtual-scroll>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+
+
+                        <!--TYPE: Feature Space-->
+                        <v-container>
                             <v-row>
-
+                                <v-col cols="12">
+                                    <v-form>
+                                        <v-btn :disabled="num_selected_designs < 1" block elevation="0" v-on:click="mine_features()" color="success">Mine Features ({{num_selected_designs}})</v-btn>
+                                    </v-form>
+                                </v-col>
                             </v-row>
                         </v-container>
 
@@ -127,6 +152,7 @@
 
                                 v-on:click="select_datapoint"
                                 v-on:hover="hover_datapoint"
+                                v-on:selected="selected_datapoint"
                         ></plotly>
                     </v-card>
                 </v-col>
@@ -152,15 +178,16 @@
         },
         data: function () {
             return {
+                refresh: 0,
 
                 // --> VIZ Types
                 visualization_types: [
                     'Design Space',
-                    'Coverage Map'
+                    'Feature Space'
                 ],
                 visualization_type: 'Design Space',
 
-                // --> VIS: Coverage Map
+                // --> VIS: Feature Space
                 // --> VIS: Design Space
                 selected_objectives: [],
                 objective_axis: [0, 0, 0],
@@ -193,8 +220,20 @@
                 dataset_id: state => state.problem.dataset_id,
                 design_clicked_eval_request: state => state.problem.design_clicked_eval_request,
                 design_hovered_eval_request: state => state.problem.design_hovered_eval_request,
+                store_design_selected: state => state.problem.store_design_selected,
+                features: state => state.problem.features,
+                feature_itemsets: state => state.problem.feature_itemsets,
             }),
+            num_selected_designs() {
+                if(this.store_design_selected === null){
+                    return 0;
+                }
+                else{
+                    return this.store_design_selected.length;
+                }
+            },
             plot() {
+                let x = this.refresh;
 
                 // --> 1. Validate plot can be returned
                 if(this.selected_objectives.length === 0){
@@ -269,6 +308,27 @@
                 this.highlight_clicked_designs([point.customdata.id]);
                 this.$store.commit('set_store_design_clicked', _.cloneDeep(point.customdata));
             },
+            selected_datapoint(event){
+                if(event === undefined || event === null || !Object.hasOwn(event, 'points')){
+                  return;
+                }
+                let points = event.points;
+                if(points.length === 0){
+                  return;
+                }
+                console.log('--> SELECTED EVENT 2:', points);
+                let points_cdata = [];
+                let points_ids = [];
+                for(let x = 0; x < points.length; x++){
+                  let point_data = _.cloneDeep(points[x].customdata);
+                  points_cdata.push(point_data);
+                  points_ids.push(point_data.id);
+                }
+
+                this.highlight_selected_designs(points_ids);
+                this.$store.commit('set_store_design_selected', points_cdata);
+                this.refresh++;
+            },
             hover_datapoint(event){
                 let points = event.points;
                 if(points.length === 0){
@@ -278,6 +338,17 @@
 
                 this.highlight_hovered_designs([point.customdata.id]);
                 this.$store.commit('set_store_design_hovered', _.cloneDeep(point.customdata));
+            },
+            highlight_selected_designs(design_ids){
+                for(let x = 0; x < this.plot_designs.length; x++){
+                    let design = this.plot_designs[x];
+                    if(design_ids.includes(design.id)){
+                      design.selected = true;
+                    }
+                    else{
+                      design.selected = false;
+                    }
+                }
             },
             highlight_hovered_designs(design_ids){
                 for(let x = 0; x < this.plot_designs.length; x++){
@@ -314,6 +385,17 @@
                     designs[x].hovered = false;
                 }
                 this.plot_designs = designs;
+            },
+            mine_features(){
+                this.$store.dispatch('mineFeatures');
+            },
+            rule_string(rule_side){
+                let lhs = rule_side;
+                let lhs_str = "";
+                for(let x=0;x<lhs.length;x++){
+                    lhs_str += lhs[x];
+                }
+                return lhs_str
             }
         },
         apollo: {
@@ -363,6 +445,7 @@
                             let design = _.cloneDeep(designs[x]);
                             design.clicked = false;
                             design.hovered = false;
+                            design.selected = false;
                             design.structure = convertDesignToList(design.representation);
                             if(x === (designs.length-1)){design.clicked = true;}
                             this.plot_designs.push(design);
@@ -387,6 +470,7 @@
                         last_design.structure = convertDesignToList(last_design.representation);
                         last_design.clicked = true;
                         last_design.hovered = false;
+                        last_design.selected = false;
 
                         this.initialized = true;
                     },

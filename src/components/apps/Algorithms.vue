@@ -57,7 +57,9 @@
                                 </v-col>
                             </v-row>
                         </v-container>
+
                         <v-divider></v-divider>
+
                         <v-container>
                             <v-row justify="center">
                                 <v-col cols="12" style="padding: 0">
@@ -85,7 +87,9 @@
                                 </v-col>
                             </v-row>
                         </v-container>
+
                         <v-divider></v-divider>
+
                         <v-container>
                             <v-row>
                                 <v-col cols="12">

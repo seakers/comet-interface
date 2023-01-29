@@ -7,33 +7,33 @@ module.exports = merge(common, {
   mode: 'development',
   plugins: [
     new webpack.DefinePlugin({
-        'API_URL': JSON.stringify('http://localhost:8080/api/'),
-        'WS_URL': JSON.stringify('ws://localhost:8080/api/'),
-        'GRAPH_QL_URL': JSON.stringify('http://3.133.157.232:8080/v1/graphql'),
-        'GRAPH_QL_WS_URL': JSON.stringify('ws://3.133.157.232:8080/v1/graphql'),
-        'GRAPH_QL_WS_URL_SUB': JSON.stringify('ws://3.133.157.232:8080/subscriptions'),
+        'API_URL': JSON.stringify('https://comet.selva-research.com/dev/api/'),
+        'WS_URL': JSON.stringify('wss://comet.selva-research.com/dev/api/'),
+        'GRAPH_QL_URL': JSON.stringify('https://comet.selva-research.com/graphql/v1/graphql'),
+        'GRAPH_QL_WS_URL': JSON.stringify('wss://comet.selva-research.com/graphql/v1/graphql'),
+        'GRAPH_QL_WS_URL_SUB': JSON.stringify('wss://comet.selva-research.com/graphql/subscriptions'),
     })
   ],
   devtool: 'inline-source-map',
   devServer: {
-    host: '0.0.0.0',
+    host: 'localhost',
       allowedHosts: [
           'comet',
           'localhost'
       ],
     proxy: {
         '/api': {
-            target: 'http://brain:8000/',
+            target: 'http://localhost:8000/',
             changeOrigin: true,
             ws: true
         },
         '/server': {
-            target: 'http://brain:8000/',
+            target: 'http://localhost:8000/',
             changeOrigin: true,
             ws: true
         },
         '/static': {
-            target: 'http://brain:8000/',
+            target: 'http://localhost:8000/',
             changeOrigin: true,
             ws: true
         }
